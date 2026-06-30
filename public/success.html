@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Confirmed | Gratsiela Ivanova</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,300;0,400;0,600;1,400&family=Montserrat:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #1c030a;
+            --bg-sidebar: #22050f;
+            --text-champagne: #eaddcb;
+            --accent-gold: #c5a059;
+            --accent-pink: #d86b84;
+            --font-serif: 'Playfair Display', serif;
+            --font-sans: 'Montserrat', sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-champagne);
+            font-family: var(--font-sans);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+        }
+
+        .container {
+            background-color: var(--bg-sidebar);
+            border: 1px solid var(--accent-gold);
+            max-width: 550px;
+            width: 100%;
+            padding: 50px 40px;
+            border-radius: 4px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7);
+            text-align: center;
+        }
+
+        .logo-large {
+            width: 100px;
+            height: 80px;
+            margin: 0 auto 25px auto;
+        }
+
+        .success-icon {
+            font-size: 3.5rem;
+            color: var(--accent-gold);
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            font-family: var(--font-serif);
+            font-size: 2rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 15px;
+            font-weight: 300;
+        }
+
+        .thank-you {
+            font-size: 0.95rem;
+            color: rgba(234, 221, 203, 0.7);
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+
+        .receipt-card {
+            background-color: var(--bg-dark);
+            border-left: 3px solid var(--accent-gold);
+            padding: 25px;
+            text-align: left;
+            margin-bottom: 35px;
+            display: none;
+        }
+
+        .receipt-title {
+            font-family: var(--font-serif);
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            border-bottom: 1px solid rgba(234, 221, 203, 0.1);
+            padding-bottom: 8px;
+        }
+
+        .receipt-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-size: 0.85rem;
+        }
+
+        .receipt-label {
+            color: var(--accent-gold);
+            text-transform: uppercase;
+            font-weight: 500;
+            letter-spacing: 1px;
+        }
+
+        .receipt-val {
+            color: var(--text-champagne);
+            font-weight: 400;
+            text-align: right;
+            max-width: 60%;
+            word-wrap: break-word;
+        }
+
+        /* Loading Spinner */
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(234, 221, 203, 0.2);
+            border-top-color: var(--accent-gold);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 30px auto;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .btn-return {
+            border: 1px solid var(--accent-gold);
+            padding: 12px 30px;
+            font-size: 0.8rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            font-weight: 600;
+            background: transparent;
+            color: var(--text-champagne);
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-block;
+        }
+
+        .btn-return:hover {
+            background-color: var(--accent-gold);
+            color: var(--bg-dark);
+        }
+
+        .btn-download {
+            background-color: var(--accent-gold);
+            color: var(--bg-dark);
+            border: 1px solid var(--accent-gold);
+            padding: 12px 30px;
+            font-size: 0.8rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: none;
+            text-decoration: none;
+            margin-bottom: 15px;
+            width: 100%;
+        }
+
+        .btn-download:hover {
+            background-color: transparent;
+            color: var(--text-champagne);
+        }
+
+        .error-message {
+            color: var(--accent-pink);
+            font-size: 0.95rem;
+            margin-bottom: 25px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        
+        <div class="logo-large">
+            <svg viewBox="0 0 100 80" width="100%" height="100%">
+                <defs>
+                    <linearGradient id="goldSuccess" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#F2DFB8" />
+                        <stop offset="50%" stop-color="#C5A059" />
+                        <stop offset="100%" stop-color="#8F7138" />
+                    </linearGradient>
+                </defs>
+                <g fill="url(#goldSuccess)" font-family="'Playfair Display', serif">
+                    <text x="12" y="62" font-size="68" font-weight="300">G</text>
+                    <text x="52" y="62" font-size="68" font-weight="400" letter-spacing="-3">I</text>
+                </g>
+            </svg>
+        </div>
+
+        <div class="success-icon" id="header-icon">✓</div>
+        <h1 id="status-title">Order Confirmed</h1>
+        
+        <p class="thank-you" id="status-desc">
+            We are verifying your payment session. Please wait a moment...
+        </p>
+
+        <!-- Loading spinner -->
+        <div class="spinner" id="loading-spinner"></div>
+
+        <!-- Receipt Card -->
+        <div class="receipt-card" id="receipt-details">
+            <div class="receipt-title">Order Receipt</div>
+            
+            <div class="receipt-row">
+                <span class="receipt-label">Order Ref</span>
+                <span class="receipt-val" id="rec-id">ord_12345</span>
+            </div>
+            <div class="receipt-row">
+                <span class="receipt-label">Product</span>
+                <span class="receipt-val" id="rec-item">Ethereal Dreams</span>
+            </div>
+            <div class="receipt-row">
+                <span class="receipt-label">Customer</span>
+                <span class="receipt-val" id="rec-name">Viktor Georgiev</span>
+            </div>
+            <div class="receipt-row" id="address-row">
+                <span class="receipt-label">Shipping</span>
+                <span class="receipt-val" id="rec-address">Sofia, Bulgaria</span>
+            </div>
+            <div class="receipt-row">
+                <span class="receipt-label">Price Paid</span>
+                <span class="receipt-val" id="rec-price" style="font-weight: 600; color: var(--accent-gold);">€1,800</span>
+            </div>
+        </div>
+
+        <div class="error-message" id="error-box">
+            Failed to verify payment session. If you paid, please contact support with your Stripe email.
+        </div>
+
+        <!-- Download Button (Visible only for Paid Digital Art orders) -->
+        <a href="#" id="download-btn" class="btn-download">Download Digital Painting</a>
+
+        <a href="/" class="btn-return" style="width: 100%;">Return to Gallery</a>
+
+    </div>
+
+    <script>
+        // Parse Query Session ID
+        const urlParams = new URLSearchParams(window.location.search);
+        const sessionId = urlParams.get('session_id');
+
+        if (!sessionId) {
+            document.getElementById('loading-spinner').style.display = 'none';
+            document.getElementById('status-title').innerText = 'Invalid Session';
+            document.getElementById('status-desc').innerText = 'No transaction session reference was found.';
+            document.getElementById('header-icon').innerText = '✕';
+            document.getElementById('header-icon').style.color = 'var(--accent-pink)';
+        } else {
+            // Verify session with the backend
+            fetch(`/api/verify-checkout-session?session_id=${sessionId}`)
+                .then(res => {
+                    if (!res.ok) throw new Error('Verification request failed');
+                    return res.json();
+                })
+                .then(data => {
+                    document.getElementById('loading-spinner').style.display = 'none';
+                    
+                    if (data.status === 'success') {
+                        const order = data.order;
+                        
+                        document.getElementById('status-desc').innerText = `Thank you for your purchase! A receipt has been sent to ${order.customerEmail}. We will package your order and ship it shortly.`;
+                        
+                        // Populate Receipt Details
+                        document.getElementById('rec-id').innerText = order.id;
+                        document.getElementById('rec-item').innerText = order.itemName;
+                        document.getElementById('rec-name').innerText = order.customerName;
+                        document.getElementById('rec-price').innerText = order.itemPrice;
+                        
+                        if (order.type === 'digital') {
+                            document.getElementById('address-row').style.display = 'none';
+                            
+                            // Configure and show download button
+                            const downloadBtn = document.getElementById('download-btn');
+                            if (order.downloadUrl) {
+                                downloadBtn.href = order.downloadUrl;
+                                downloadBtn.style.display = 'inline-block';
+                                document.getElementById('status-desc').innerText = `Thank you for your purchase! Your payment is verified, and your digital painting is ready for download. A download link has also been sent to ${order.customerEmail}.`;
+                            }
+                        } else {
+                            document.getElementById('rec-address').innerText = order.customerAddress;
+                        }
+
+                        document.getElementById('receipt-details').style.display = 'block';
+                    } else {
+                        // Payment session is incomplete
+                        document.getElementById('status-title').innerText = 'Payment Incomplete';
+                        document.getElementById('status-desc').innerText = 'The payment process was not completed successfully.';
+                        document.getElementById('header-icon').innerText = '✕';
+                        document.getElementById('header-icon').style.color = 'var(--accent-pink)';
+                    }
+                })
+                .catch(err => {
+                    console.error(err);
+                    document.getElementById('loading-spinner').style.display = 'none';
+                    document.getElementById('status-title').innerText = 'Error';
+                    document.getElementById('status-desc').style.display = 'none';
+                    document.getElementById('error-box').style.display = 'block';
+                    document.getElementById('header-icon').innerText = '✕';
+                    document.getElementById('header-icon').style.color = 'var(--accent-pink)';
+                });
+        }
+    </script>
+</body>
+</html>

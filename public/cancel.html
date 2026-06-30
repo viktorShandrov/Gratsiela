@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout Cancelled | Gratsiela Ivanova</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,300;0,400;0,600;1,400&family=Montserrat:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #1c030a;
+            --bg-sidebar: #22050f;
+            --text-champagne: #eaddcb;
+            --accent-gold: #c5a059;
+            --accent-pink: #d86b84;
+            --font-serif: 'Playfair Display', serif;
+            --font-sans: 'Montserrat', sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-champagne);
+            font-family: var(--font-sans);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+        }
+
+        .container {
+            background-color: var(--bg-sidebar);
+            border: 1px solid var(--accent-gold);
+            max-width: 550px;
+            width: 100%;
+            padding: 50px 40px;
+            border-radius: 4px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7);
+            text-align: center;
+        }
+
+        .logo-large {
+            width: 100px;
+            height: 80px;
+            margin: 0 auto 25px auto;
+        }
+
+        .cancel-icon {
+            font-size: 3.5rem;
+            color: var(--accent-pink);
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            font-family: var(--font-serif);
+            font-size: 2rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 15px;
+            font-weight: 300;
+        }
+
+        .desc {
+            font-size: 0.95rem;
+            color: rgba(234, 221, 203, 0.7);
+            margin-bottom: 35px;
+            line-height: 1.6;
+        }
+
+        .btn-return {
+            border: 1px solid var(--accent-gold);
+            padding: 12px 30px;
+            font-size: 0.8rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            font-weight: 600;
+            background: transparent;
+            color: var(--text-champagne);
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-block;
+        }
+
+        .btn-return:hover {
+            background-color: var(--accent-gold);
+            color: var(--bg-dark);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        
+        <div class="logo-large">
+            <svg viewBox="0 0 100 80" width="100%" height="100%">
+                <defs>
+                    <linearGradient id="goldCancel" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#F2DFB8" />
+                        <stop offset="50%" stop-color="#C5A059" />
+                        <stop offset="100%" stop-color="#8F7138" />
+                    </linearGradient>
+                </defs>
+                <g fill="url(#goldCancel)" font-family="'Playfair Display', serif">
+                    <text x="12" y="62" font-size="68" font-weight="300">G</text>
+                    <text x="52" y="62" font-size="68" font-weight="400" letter-spacing="-3">I</text>
+                </g>
+            </svg>
+        </div>
+
+        <div class="cancel-icon">✕</div>
+        <h1>Checkout Cancelled</h1>
+        
+        <p class="desc">
+            Your payment session was cancelled. No charges were made, and your order was not registered. You are welcome to return to the gallery to explore other items.
+        </p>
+
+        <a href="/" class="btn-return">Return to Gallery</a>
+
+    </div>
+
+</body>
+</html>
