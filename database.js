@@ -8,6 +8,21 @@ const usePostgres = !!process.env.POSTGRES_URL;
 // Local JSON DB file config
 const DB_FILE = path.join(__dirname, 'db.json');
 
+const crypto = require('crypto');
+
+function hashPassword(password) {
+    const salt = crypto.randomBytes(16).toString('hex');
+    const hash = crypto.pbkdf2Sync(password, salt, 1000, 64, 'sha512').toString('hex');
+    return `${salt}:${hash}`;
+}
+
+function verifyPassword(password, storedValue) {
+    if (!storedValue || !storedValue.includes(':')) return false;
+    const [salt, originalHash] = storedValue.split(':');
+    const hash = crypto.pbkdf2Sync(password, salt, 1000, 64, 'sha512').toString('hex');
+    return hash === originalHash;
+}
+
 const DEFAULT_PRODUCTS = [
     {
         id: 'prod_1',
@@ -176,6 +191,24 @@ async function initDb() {
             }
         }
 
+        // Settings table
+        await client.query(`
+            CREATE TABLE IF NOT EXISTS settings (
+                key VARCHAR(255) PRIMARY KEY,
+                value TEXT NOT NULL
+            )
+        `);
+
+        // Seed default password if not exists
+        const settingsRes = await client.query("SELECT count(*) FROM settings WHERE key = 'dashboard_password'");
+        const settingsCount = parseInt(settingsRes.rows[0].count, 10);
+        if (settingsCount === 0) {
+            console.log('Seeding default dashboard password into Vercel Postgres...');
+            const defaultPass = process.env.DASHBOARD_PASSWORD || 'work';
+            const hashed = hashPassword(defaultPass);
+            await client.query("INSERT INTO settings (key, value) VALUES ('dashboard_password', $1)", [hashed]);
+        }
+
         await client.query('COMMIT');
         isInitialized = true;
         console.log('Vercel Postgres database initialized successfully.');
@@ -190,8 +223,15 @@ async function initDb() {
 // Local JSON DB Helpers
 function readDb() {
     try {
+        let changed = false;
         if (!fs.existsSync(DB_FILE)) {
-            const initialData = { orders: [], products: DEFAULT_PRODUCTS };
+            const defaultPass = process.env.DASHBOARD_PASSWORD || 'work';
+            const hashed = hashPassword(defaultPass);
+            const initialData = { 
+                orders: [], 
+                products: DEFAULT_PRODUCTS,
+                settings: { dashboard_password: hashed }
+            };
             fs.writeFileSync(DB_FILE, JSON.stringify(initialData, null, 2));
             return initialData;
         }
@@ -200,12 +240,22 @@ function readDb() {
         
         if (!parsed.products) {
             parsed.products = DEFAULT_PRODUCTS;
+            changed = true;
+        }
+        if (!parsed.settings || !parsed.settings.dashboard_password) {
+            const defaultPass = process.env.DASHBOARD_PASSWORD || 'work';
+            const hashed = hashPassword(defaultPass);
+            parsed.settings = parsed.settings || {};
+            parsed.settings.dashboard_password = hashed;
+            changed = true;
+        }
+        if (changed) {
             fs.writeFileSync(DB_FILE, JSON.stringify(parsed, null, 2));
         }
         return parsed;
     } catch (err) {
         console.error('Error reading database file:', err);
-        return { orders: [], products: DEFAULT_PRODUCTS };
+        return { orders: [], products: DEFAULT_PRODUCTS, settings: {} };
     }
 }
 
@@ -675,6 +725,58 @@ async function deleteProduct(prodId) {
     }
 }
 
+async function getDashboardPasswordHash() {
+    if (usePostgres) {
+        await checkInit();
+        try {
+            const res = await pool.query("SELECT value FROM settings WHERE key = 'dashboard_password'");
+            if (res.rows.length > 0) {
+                return res.rows[0].value;
+            }
+            const defaultPass = process.env.DASHBOARD_PASSWORD || 'work';
+            return hashPassword(defaultPass);
+        } catch (err) {
+            console.error('Error getting dashboard password from Postgres:', err);
+            const defaultPass = process.env.DASHBOARD_PASSWORD || 'work';
+            return hashPassword(defaultPass);
+        }
+    } else {
+        const db = readDb();
+        if (db.settings && db.settings.dashboard_password) {
+            return db.settings.dashboard_password;
+        }
+        const defaultPass = process.env.DASHBOARD_PASSWORD || 'work';
+        return hashPassword(defaultPass);
+    }
+}
+
+async function updateDashboardPassword(newPassword) {
+    const hashed = hashPassword(newPassword);
+    if (usePostgres) {
+        await checkInit();
+        try {
+            await pool.query(
+                "INSERT INTO settings (key, value) VALUES ('dashboard_password', $1) ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value",
+                [hashed]
+            );
+            return true;
+        } catch (err) {
+            console.error('Error updating dashboard password in Postgres:', err);
+            return false;
+        }
+    } else {
+        const db = readDb();
+        db.settings = db.settings || {};
+        db.settings.dashboard_password = hashed;
+        return writeDb(db);
+    }
+}
+
+async function verifyDashboardPassword(inputPassword) {
+    const hashed = await getDashboardPasswordHash();
+    return verifyPassword(inputPassword, hashed);
+}
+
 module.exports = {
     getOrders,
     addOrder,
@@ -685,5 +787,8 @@ module.exports = {
     getProducts,
     addProduct,
     updateProduct,
-    deleteProduct
+    deleteProduct,
+    getDashboardPasswordHash,
+    updateDashboardPassword,
+    verifyDashboardPassword
 };

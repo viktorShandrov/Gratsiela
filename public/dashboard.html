@@ -549,6 +549,7 @@
                 <p>Gratsiela Ivanova | Shop Management</p>
             </div>
             <div class="dash-actions">
+                <button class="btn-action" style="padding: 8px 16px; font-size: 0.75rem; margin-right: 10px;" onclick="openPasswordModal()">Change Password</button>
                 <button class="btn-logout" onclick="handleLogout()">Log Out</button>
             </div>
         </header>
@@ -639,6 +640,28 @@
             </div>
         </section>
 
+    </div>
+
+    <!-- --- CHANGE PASSWORD MODAL POPUP --- -->
+    <div class="modal" id="password-modal">
+        <div class="modal-content" style="max-width: 400px;">
+            <button class="close-modal" onclick="closePasswordModal()">✕</button>
+            <h3 class="modal-title">Change Access Password</h3>
+            
+            <form onsubmit="handlePasswordChangeSubmit(event)" class="crud-form">
+                <div class="form-group" style="margin-bottom: 15px;">
+                    <label for="new-pass-input" style="display: block; margin-bottom: 5px; font-size: 0.85rem; color: rgba(234, 221, 203, 0.7);">New Password</label>
+                    <input type="password" id="new-pass-input" required minlength="4" style="width: 100%; padding: 8px 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(234, 221, 203, 0.15); color: #fff; border-radius: 4px;">
+                </div>
+                <div class="form-group" style="margin-bottom: 15px;">
+                    <label for="confirm-pass-input" style="display: block; margin-bottom: 5px; font-size: 0.85rem; color: rgba(234, 221, 203, 0.7);">Confirm New Password</label>
+                    <input type="password" id="confirm-pass-input" required minlength="4" style="width: 100%; padding: 8px 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(234, 221, 203, 0.15); color: #fff; border-radius: 4px;">
+                </div>
+                <div id="password-error-message" style="color: var(--accent-pink); font-size: 0.85rem; margin-top: 10px; display: none;"></div>
+                <div id="password-success-message" style="color: #2ecc71; font-size: 0.85rem; margin-top: 10px; display: none;"></div>
+                <button type="submit" class="btn-action" style="margin-top: 15px; width: 100%; padding: 10px;">Update Password</button>
+            </form>
+        </div>
     </div>
 
     <!-- --- PRODUCT CRUD MODAL POPUP --- -->
@@ -1035,6 +1058,65 @@
                 console.error(err);
                 alert('Failed to delete product.');
             });
+        }
+
+        function openPasswordModal() {
+            document.getElementById('new-pass-input').value = '';
+            document.getElementById('confirm-pass-input').value = '';
+            document.getElementById('password-error-message').style.display = 'none';
+            document.getElementById('password-success-message').style.display = 'none';
+            document.getElementById('password-modal').classList.add('active');
+        }
+
+        function closePasswordModal() {
+            document.getElementById('password-modal').classList.remove('active');
+        }
+
+        async function handlePasswordChangeSubmit(event) {
+            event.preventDefault();
+            const newPass = document.getElementById('new-pass-input').value;
+            const confirmPass = document.getElementById('confirm-pass-input').value;
+            const errorDiv = document.getElementById('password-error-message');
+            const successDiv = document.getElementById('password-success-message');
+
+            errorDiv.style.display = 'none';
+            successDiv.style.display = 'none';
+
+            if (newPass !== confirmPass) {
+                errorDiv.innerText = 'Passwords do not match.';
+                errorDiv.style.display = 'block';
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/change-password', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ newPassword: newPass })
+                });
+
+                const data = await response.json();
+                if (response.ok && data.success) {
+                    successDiv.innerText = 'Password changed successfully!';
+                    successDiv.style.display = 'block';
+                    token = data.token;
+                    localStorage.setItem('artist_token', data.token);
+                    
+                    setTimeout(() => {
+                        closePasswordModal();
+                    }, 1500);
+                } else {
+                    errorDiv.innerText = data.error || 'Failed to update password.';
+                    errorDiv.style.display = 'block';
+                }
+            } catch (err) {
+                console.error('Error changing password:', err);
+                errorDiv.innerText = 'Connection error.';
+                errorDiv.style.display = 'block';
+            }
         }
     </script>
 </body>

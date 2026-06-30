@@ -75,14 +75,14 @@ function parsePriceToCents(priceStr) {
 }
 
 // Helper to verify dashboard authorization headers
-function isAuthorized(req) {
+async function isAuthorized(req) {
     const authHeader = req.headers.authorization;
     if (!authHeader) return false;
     
-    // Expecting token in form: "Bearer <password>"
-    const password = authHeader.split(' ')[1];
-    const dashboardPassword = process.env.DASHBOARD_PASSWORD || 'artist_secret_123';
-    return password === dashboardPassword;
+    // Expecting token in form: "Bearer <hash>"
+    const token = authHeader.split(' ')[1];
+    const storedHash = await db.getDashboardPasswordHash();
+    return token === storedHash;
 }
 
 // --- STRIPE CHECKOUT API ---
@@ -277,20 +277,46 @@ app.post('/api/contact', async (req, res) => {
 // --- ARTIST DASHBOARD API ENDPOINTS ---
 
 // Dashboard Login validation
-app.post('/api/dashboard-login', (req, res) => {
+app.post('/api/dashboard-login', async (req, res) => {
     const { password } = req.body;
-    const dashboardPassword = process.env.DASHBOARD_PASSWORD || 'artist_secret_123';
 
-    if (password === dashboardPassword) {
-        res.json({ success: true, token: password });
+    const isValid = await db.verifyDashboardPassword(password);
+    if (isValid) {
+        const token = await db.getDashboardPasswordHash();
+        res.json({ success: true, token: token });
     } else {
         res.status(401).json({ success: false, error: 'Incorrect dashboard access credentials' });
     }
 });
 
+// Change dashboard password
+app.post('/api/change-password', async (req, res) => {
+    if (!(await isAuthorized(req))) {
+        return res.status(401).json({ error: 'Unauthorized access' });
+    }
+
+    try {
+        const { newPassword } = req.body;
+        if (!newPassword || newPassword.length < 4) {
+            return res.status(400).json({ error: 'Password must be at least 4 characters long' });
+        }
+
+        const success = await db.updateDashboardPassword(newPassword);
+        if (success) {
+            const newHash = await db.getDashboardPasswordHash();
+            res.json({ success: true, token: newHash });
+        } else {
+            res.status(500).json({ error: 'Failed to update password' });
+        }
+    } catch (err) {
+        console.error('Error changing password:', err);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
 // Fetch dashboard metrics and order details
 app.get('/api/dashboard-data', async (req, res) => {
-    if (!isAuthorized(req)) {
+    if (!(await isAuthorized(req))) {
         return res.status(401).json({ error: 'Unauthorized access' });
     }
 
@@ -305,7 +331,7 @@ app.get('/api/dashboard-data', async (req, res) => {
 
 // Update order status (Paid, Shipped, etc.)
 app.post('/api/update-order-status', async (req, res) => {
-    if (!isAuthorized(req)) {
+    if (!(await isAuthorized(req))) {
         return res.status(401).json({ error: 'Unauthorized access' });
     }
 
@@ -344,7 +370,7 @@ app.get('/api/products', async (req, res) => {
 
 // Protected endpoint to add a product
 app.post('/api/products', async (req, res) => {
-    if (!isAuthorized(req)) {
+    if (!(await isAuthorized(req))) {
         return res.status(401).json({ error: 'Unauthorized access' });
     }
 
@@ -375,7 +401,7 @@ app.post('/api/products', async (req, res) => {
 
 // Protected endpoint to update a product
 app.put('/api/products/:id', async (req, res) => {
-    if (!isAuthorized(req)) {
+    if (!(await isAuthorized(req))) {
         return res.status(401).json({ error: 'Unauthorized access' });
     }
 
@@ -399,7 +425,7 @@ app.put('/api/products/:id', async (req, res) => {
 
 // Protected endpoint to delete a product
 app.delete('/api/products/:id', async (req, res) => {
-    if (!isAuthorized(req)) {
+    if (!(await isAuthorized(req))) {
         return res.status(401).json({ error: 'Unauthorized access' });
     }
 
