@@ -204,7 +204,7 @@ async function initDb() {
         const settingsCount = parseInt(settingsRes.rows[0].count, 10);
         if (settingsCount === 0) {
             console.log('Seeding default dashboard password into Vercel Postgres...');
-            const defaultPass = process.env.DASHBOARD_PASSWORD || 'work';
+            const defaultPass = 'work';
             const hashed = hashPassword(defaultPass);
             await client.query("INSERT INTO settings (key, value) VALUES ('dashboard_password', $1)", [hashed]);
         }
@@ -225,7 +225,7 @@ function readDb() {
     try {
         let changed = false;
         if (!fs.existsSync(DB_FILE)) {
-            const defaultPass = process.env.DASHBOARD_PASSWORD || 'work';
+            const defaultPass = 'work';
             const hashed = hashPassword(defaultPass);
             const initialData = { 
                 orders: [], 
@@ -243,7 +243,7 @@ function readDb() {
             changed = true;
         }
         if (!parsed.settings || !parsed.settings.dashboard_password) {
-            const defaultPass = process.env.DASHBOARD_PASSWORD || 'work';
+            const defaultPass = 'work';
             const hashed = hashPassword(defaultPass);
             parsed.settings = parsed.settings || {};
             parsed.settings.dashboard_password = hashed;
@@ -733,11 +733,11 @@ async function getDashboardPasswordHash() {
             if (res.rows.length > 0) {
                 return res.rows[0].value;
             }
-            const defaultPass = process.env.DASHBOARD_PASSWORD || 'work';
+            const defaultPass = 'work';
             return hashPassword(defaultPass);
         } catch (err) {
             console.error('Error getting dashboard password from Postgres:', err);
-            const defaultPass = process.env.DASHBOARD_PASSWORD || 'work';
+            const defaultPass = 'work';
             return hashPassword(defaultPass);
         }
     } else {
@@ -745,7 +745,7 @@ async function getDashboardPasswordHash() {
         if (db.settings && db.settings.dashboard_password) {
             return db.settings.dashboard_password;
         }
-        const defaultPass = process.env.DASHBOARD_PASSWORD || 'work';
+        const defaultPass = 'work';
         return hashPassword(defaultPass);
     }
 }
