@@ -93,34 +93,104 @@ ${downloadUrl}
     if (!process.env.SMTP_USER || !process.env.SMTP_PASS) {
         console.warn('--------------------------------------------------');
         console.warn('⚠️ SMTP credentials are not configured in .env!');
-        console.warn('Simulating order email notification:');
-        console.warn(`To: ${recipientEmail}, ${order.customerEmail}`);
-        console.warn(`Subject: New Order Placed: #${order.id}`);
+        console.warn('Simulating customer and admin order emails:');
+        console.warn(`[CUSTOMER EMAIL] To: ${order.customerEmail}`);
+        console.warn(`Subject: Order Confirmation: #${order.id}`);
         console.warn(`Product: ${order.itemName} (${order.itemPrice})`);
-        console.warn(`Customer: ${order.customerName} <${order.customerEmail}> (${order.customerPhone})`);
-        console.warn(`Shipping Address: ${order.customerAddress}`);
-        console.warn(`Payment Method: ${order.paymentMethod}`);
-        console.warn(`Payment Status: ${order.paymentStatus}`);
         if (order.type === 'digital' && order.paymentStatus === 'Paid') {
             console.warn(`Download Link: ${domainUrl}/api/download?session_id=${order.stripeSessionId}`);
         }
+        console.warn(`[ADMIN EMAIL] To: ${recipientEmail}`);
+        console.warn(`Subject: New Order Received: #${order.id}`);
+        console.warn(`Customer: ${order.customerName} <${order.customerEmail}> (${order.customerPhone})`);
         console.warn('--------------------------------------------------');
         return true; // Return true as a fallback success indicator for testing
     }
 
-    const mailOptions = {
+    // 1. CUSTOMER ORDER CONFIRMATION EMAIL
+    const customerMailOptions = {
         from: `"Gratsiela Art Shop" <${process.env.SMTP_USER}>`,
-        to: [recipientEmail, order.customerEmail].filter(Boolean).join(', '),
-        subject: `New Order Placed: #${order.id}`,
-        text: `A new order has been placed on your website.
+        to: order.customerEmail,
+        subject: `Order Confirmation - #${order.id} | Gratsiela Art`,
+        text: `Thank you for your purchase, ${order.customerName}!
+        
+Your order has been successfully placed.
 
+Order Details:
+Order ID: ${order.id}
+Product: ${order.itemName}
+Price: ${order.itemPrice}
+Payment Method: ${order.paymentMethod}
+Payment Status: ${order.paymentStatus}
+${digitalSectionText}
+${order.type !== 'digital' ? `Shipping Address:\n${order.customerAddress}` : ''}
+
+If you have any questions, feel free to reply directly to this email.
+
+Warm regards,
+Gratsiela Ivanova`,
+        html: `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eaeaea; border-radius: 5px;">
+                <h2 style="color: #b8977e; border-bottom: 2px solid #b8977e; padding-bottom: 10px; margin-top: 0;">Thank you for your order!</h2>
+                <p>Hello ${order.customerName},</p>
+                <p>We are happy to confirm that your order has been received and is being processed.</p>
+                
+                ${digitalSectionHtml}
+                
+                <table style="width: 100%; border-collapse: collapse; margin-top: 20px; margin-bottom: 20px;">
+                    <tr style="background-color: #fcfbfa;">
+                        <th style="padding: 10px; text-align: left; border-bottom: 1px solid #eaeaea; color: #b8977e;">Order Summary</th>
+                        <th style="padding: 10px; text-align: left; border-bottom: 1px solid #eaeaea; color: #b8977e;"></th>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; border-bottom: 1px solid #eaeaea;"><strong>Order ID:</strong></td>
+                        <td style="padding: 10px; border-bottom: 1px solid #eaeaea;">${order.id}</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; border-bottom: 1px solid #eaeaea;"><strong>Product:</strong></td>
+                        <td style="padding: 10px; border-bottom: 1px solid #eaeaea;">${order.itemName}</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; border-bottom: 1px solid #eaeaea;"><strong>Price:</strong></td>
+                        <td style="padding: 10px; border-bottom: 1px solid #eaeaea;">${order.itemPrice}</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; border-bottom: 1px solid #eaeaea;"><strong>Payment Method:</strong></td>
+                        <td style="padding: 10px; border-bottom: 1px solid #eaeaea;">${order.paymentMethod}</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; border-bottom: 1px solid #eaeaea;"><strong>Payment Status:</strong></td>
+                        <td style="padding: 10px; border-bottom: 1px solid #eaeaea; font-weight: bold; color: ${order.paymentStatus === 'Paid' ? '#2e7d32' : '#c62828'};">${order.paymentStatus}</td>
+                    </tr>
+                    ${order.type !== 'digital' ? `
+                    <tr>
+                        <td style="padding: 10px; border-bottom: 1px solid #eaeaea;"><strong>Shipping Address:</strong></td>
+                        <td style="padding: 10px; border-bottom: 1px solid #eaeaea;">${order.customerAddress}</td>
+                    </tr>
+                    ` : ''}
+                </table>
+
+                <p style="margin-top: 30px; font-size: 0.9rem; color: #666;">If you have any questions or require custom assistance, feel free to reply directly to this email.</p>
+                <p style="margin-top: 20px; font-size: 0.95rem;">Warm regards,<br/><strong>Gratsiela Ivanova</strong></p>
+            </div>
+        `
+    };
+
+    // 2. OWNER/ADMIN NEW ORDER NOTIFICATION EMAIL
+    const adminMailOptions = {
+        from: `"Gratsiela Art Shop" <${process.env.SMTP_USER}>`,
+        to: recipientEmail,
+        subject: `New Order Received - #${order.id}`,
+        text: `A new order has been received on your website.
+        
 Order ID: ${order.id}
 Date: ${new Date(order.date).toLocaleString()}
 Product: ${order.itemName}
 Price: ${order.itemPrice}
 Payment Method: ${order.paymentMethod}
 Payment Status: ${order.paymentStatus}
-${digitalSectionText}
+${order.type === 'digital' ? 'Product Type: Digital Download' : 'Product Type: Physical'}
+
 Customer Details:
 Name: ${order.customerName}
 Email: ${order.customerEmail}
@@ -128,10 +198,9 @@ Phone: ${order.customerPhone}
 Shipping Address: ${order.customerAddress}`,
         html: `
             <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eaeaea; border-radius: 5px;">
-                <h2 style="color: #b8977e; border-bottom: 2px solid #b8977e; padding-bottom: 10px; margin-top: 0;">New Order Notification</h2>
+                <h2 style="color: #c83b66; border-bottom: 2px solid #c83b66; padding-bottom: 10px; margin-top: 0;">New Order Notification</h2>
+                <p>Hello Gratsiela,</p>
                 <p>A new order has been registered on the Gratsiela Art Shop website.</p>
-                
-                ${digitalSectionHtml}
                 
                 <table style="width: 100%; border-collapse: collapse; margin-top: 20px; margin-bottom: 20px;">
                     <tr style="background-color: #fcfbfa;">
@@ -153,6 +222,10 @@ Shipping Address: ${order.customerAddress}`,
                     <tr>
                         <td style="padding: 10px; border-bottom: 1px solid #eaeaea;"><strong>Price:</strong></td>
                         <td style="padding: 10px; border-bottom: 1px solid #eaeaea;">${order.itemPrice}</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; border-bottom: 1px solid #eaeaea;"><strong>Product Type:</strong></td>
+                        <td style="padding: 10px; border-bottom: 1px solid #eaeaea;">${order.type === 'digital' ? 'Digital Download' : 'Physical'}</td>
                     </tr>
                     <tr>
                         <td style="padding: 10px; border-bottom: 1px solid #eaeaea;"><strong>Payment Method:</strong></td>
@@ -191,11 +264,14 @@ Shipping Address: ${order.customerAddress}`,
     };
 
     try {
-        const info = await transporter.sendMail(mailOptions);
-        console.log(`Order email sent successfully: ${info.messageId}`);
+        const [customerInfo, adminInfo] = await Promise.all([
+            transporter.sendMail(customerMailOptions),
+            transporter.sendMail(adminMailOptions)
+        ]);
+        console.log(`Order emails sent successfully. Customer mail: ${customerInfo.messageId}, Admin mail: ${adminInfo.messageId}`);
         return true;
     } catch (error) {
-        console.error('Error sending order notification email:', error);
+        console.error('Error sending order emails:', error);
         return false;
     }
 }
