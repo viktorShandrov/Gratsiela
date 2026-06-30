@@ -495,3 +495,5 @@ app.listen(PORT, () => {
         console.log('Stripe SDK initialized successfully.');
     }
 });
+
+module.exports = app;
