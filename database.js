@@ -18,7 +18,7 @@ const DEFAULT_PRODUCTS = [
         type: "canvas",
         desc_en: "A deep exploration of seasons and textures, featuring rich layers of burgundy acrylic paint and real gold leaf highlights.",
         desc_bg: "Дълбоко изследване на сезоните и текстурите, включващо богати слоеве бордо акрилна боя и акценти от истинско златно фолио.",
-        image: "assets/card_artworks.png",
+        image: "/assets/card_artworks.png",
         filterClass: "hue-rotate(0deg)"
     },
     {
@@ -30,7 +30,7 @@ const DEFAULT_PRODUCTS = [
         type: "canvas",
         desc_en: "A cosmic journey rendered on heavily textured canvas with deep burgundy washes, cyclamen pigments, and structured gold arches.",
         desc_bg: "Космическо пътешествие, представено върху силно текстурирано платно с дълбоки промивки от бордо, цикламени пигменти и структурирани златни арки.",
-        image: "assets/card_artworks.png",
+        image: "/assets/card_artworks.png",
         filterClass: "hue-rotate(45deg)"
     },
     {
@@ -42,7 +42,7 @@ const DEFAULT_PRODUCTS = [
         type: "canvas",
         desc_en: "An expansive, sweeping artwork designed to anchor high-end spaces. Organic paint applications blended with shimmering gold veins.",
         desc_bg: "Експанзивно, мащабно произведение на изкуството, създадено да акостира в луксозни пространства. Органични нанасяния на боя, смесени с блестящи златни вени.",
-        image: "assets/card_artworks.png",
+        image: "/assets/card_artworks.png",
         filterClass: "hue-rotate(90deg)"
     },
     {
@@ -54,7 +54,7 @@ const DEFAULT_PRODUCTS = [
         type: "print",
         desc_en: "High-resolution print capturing the fluid paint splatters of the main brand identity. Printed on 310gsm champagne cotton archival paper.",
         desc_bg: "Принт с висока резолюция, улавящ флуидните петна от боя от основната идентичност на бранда. Отпечатан върху 310-грамова памучна архивна хартия в цвят шампанско.",
-        image: "assets/hero_bg.png",
+        image: "/assets/hero_bg.png",
         filterClass: "contrast(110%)"
     },
     {
@@ -66,7 +66,7 @@ const DEFAULT_PRODUCTS = [
         type: "print",
         desc_en: "Geometric and abstract harmony. Clean lines overlapping natural watercolor structures. Limited edition run of 50 prints, signed by the artist.",
         desc_bg: "Геометрична и абстрактна хармония. Чисти линии, припокриващи естествени акварелни структури. Ограничен тираж от 50 принта, подписани от автора.",
-        image: "assets/card_books.png",
+        image: "/assets/card_books.png",
         filterClass: ""
     },
     {
@@ -78,7 +78,7 @@ const DEFAULT_PRODUCTS = [
         type: "print",
         desc_en: "A deep, dramatic print exploring negative space, dark claret paint layers, and fine golden typography lines.",
         desc_bg: "Дълбок, драматичен принт, изследващ негативното пространство, тъмните слоеве боя в цвят бордо и фините златни типографски линии.",
-        image: "assets/card_design.png",
+        image: "/assets/card_design.png",
         filterClass: ""
     },
     {
@@ -90,7 +90,7 @@ const DEFAULT_PRODUCTS = [
         type: "book",
         desc_en: "This limited-edition coffee table book details the creative philosophy and visual processes behind Gratsiela Ivanova's work. Featuring over 120 pages of high-resolution abstract painting collections, delicate watercolor sketches, editorial monograms, and reflective essays.",
         desc_bg: "Тази луксозна книга с ограничено издание описва подробно творческата философия и визуалните процеси зад работата на Грациела Иванова. Съдържа над 120 страници с колекции от абстрактни картини с висока резолюция, деликатни акварелни скици, редакционни монограми и отразяващи есета.",
-        image: "assets/card_books.png",
+        image: "/assets/card_books.png",
         filterClass: ""
     }
 ];
