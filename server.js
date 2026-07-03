@@ -2,6 +2,7 @@ const express = require('express');
 const path = require('path');
 const fs = require('fs');
 const cors = require('cors');
+const { Readable } = require('stream');
 require('dotenv').config();
 const db = require('./database');
 const emailHelper = require('./email');
@@ -513,7 +514,55 @@ app.get('/api/download', async (req, res) => {
         );
         
         if (product && product.digitalDownloadUrl) {
-            return res.redirect(product.digitalDownloadUrl);
+            let url = product.digitalDownloadUrl;
+            
+            // Convert Google Drive sharing link to direct download link
+            if (url.includes('drive.google.com/file/d/')) {
+                const matches = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
+                if (matches && matches[1]) {
+                    url = `https://drive.google.com/uc?export=download&id=${matches[1]}`;
+                }
+            }
+            // Convert Dropbox link to direct download
+            else if (url.includes('dropbox.com') && url.includes('dl=0')) {
+                url = url.replace('dl=0', 'dl=1');
+            }
+
+            try {
+                const fetchRes = await fetch(url);
+                if (!fetchRes.ok) throw new Error(`Remote file fetch failed: ${fetchRes.statusText}`);
+                
+                const contentType = fetchRes.headers.get('content-type') || 'application/octet-stream';
+                
+                // Determine extension
+                let ext = 'pdf';
+                if (contentType.includes('image/png')) ext = 'png';
+                else if (contentType.includes('image/jpeg')) ext = 'jpg';
+                else if (contentType.includes('image/webp')) ext = 'webp';
+                else if (contentType.includes('application/pdf')) ext = 'pdf';
+                else {
+                    // Extract extension from URL
+                    const urlParts = url.split(/[#?]/)[0].split('.');
+                    const urlExt = urlParts[urlParts.length - 1];
+                    if (urlExt && urlExt.length <= 4 && /^[a-zA-Z0-9]+$/.test(urlExt)) {
+                        ext = urlExt;
+                    }
+                }
+                
+                // Generate clean filename
+                const cleanName = order.itemName.replace(/[^a-zA-Z0-9\u0400-\u04FF]/g, '_');
+                const finalFilename = `${cleanName}.${ext}`;
+                
+                res.setHeader('Content-Disposition', `attachment; filename="${encodeURIComponent(finalFilename)}"`);
+                res.setHeader('Content-Type', contentType);
+                
+                const bodyStream = Readable.fromWeb(fetchRes.body);
+                bodyStream.pipe(res);
+                return;
+            } catch (fetchErr) {
+                console.error('Failed to proxy dynamic download, falling back to redirect:', fetchErr);
+                return res.redirect(product.digitalDownloadUrl);
+            }
         }
 
         const fileName = getDigitalFileName(order.itemName);
