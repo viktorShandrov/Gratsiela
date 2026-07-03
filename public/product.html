@@ -1103,21 +1103,28 @@
 
                 const filterStyle = item.filterClass ? `filter: ${item.filterClass};` : '';
 
+                const maxLen = 100;
+                let displayDesc = desc;
+                if (desc.length > maxLen) {
+                    const seeMoreText = currentLanguage === 'bg' ? 'виж още' : 'see more';
+                    displayDesc = desc.substring(0, maxLen).trim() + `... <span style="color: var(--accent-gold); font-weight: 500;">${seeMoreText}</span>`;
+                }
+
                 root.innerHTML += `
-                    <div class="portfolio-item" onclick="window.location.href='/product.html?id=${item.id}'">
+                    <a href="/product.html?id=${item.id}" class="portfolio-item" style="display: flex; flex-direction: column; text-decoration: none; color: inherit;">
                         <div class="portfolio-img" style="background-image: url('${item.image}'); ${filterStyle}"></div>
                         <div class="portfolio-info">
                             <div>
                                 <h3 class="portfolio-item-title">${name}</h3>
                                 <div class="portfolio-item-meta">${metaType}</div>
-                                <p class="portfolio-item-desc">${desc}</p>
+                                <p class="portfolio-item-desc">${displayDesc}</p>
                             </div>
                             <div class="portfolio-buy-row" onclick="event.stopPropagation();">
                                 <span class="portfolio-price">${item.price}</span>
                                 <button class="btn-buy" onclick="openCheckout('${name}', '${item.price}', '${item.type === 'print' ? 'digital' : 'physical'}')">${buyText}</button>
                             </div>
                         </div>
-                    </div>
+                    </a>
                 `;
             });
         }

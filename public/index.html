@@ -1987,7 +1987,7 @@ I believe that every work of art carries energy, history and message. For me, cr
                     }
 
                     canvasContainer.innerHTML += `
-                        <div class="portfolio-item" onclick="window.location.href='/product.html?id=${prod.id}'">
+                        <a href="/product.html?id=${prod.id}" class="portfolio-item" style="display: flex; flex-direction: column; text-decoration: none; color: inherit;">
                             <div class="portfolio-img" style="background-image: url('${prod.image}'); ${filterStyle}"></div>
                             <div class="portfolio-info">
                                 <div>
@@ -2000,7 +2000,7 @@ I believe that every work of art carries energy, history and message. For me, cr
                                     <button class="btn-buy" onclick="openCheckout('${name}', '${prod.price}', 'physical')">${buyBtnText}</button>
                                 </div>
                             </div>
-                        </div>
+                        </a>
                     `;
                 });
             }
@@ -2023,7 +2023,7 @@ I believe that every work of art carries energy, history and message. For me, cr
                     }
 
                     printsContainer.innerHTML += `
-                        <div class="portfolio-item" onclick="window.location.href='/product.html?id=${prod.id}'">
+                        <a href="/product.html?id=${prod.id}" class="portfolio-item" style="display: flex; flex-direction: column; text-decoration: none; color: inherit;">
                             <div class="portfolio-img" style="background-image: url('${prod.image}'); ${filterStyle}"></div>
                             <div class="portfolio-info">
                                 <div>
@@ -2036,7 +2036,7 @@ I believe that every work of art carries energy, history and message. For me, cr
                                     <button class="btn-buy" onclick="openCheckout('${name}', '${prod.price}', 'digital')">${buyBtnText}</button>
                                 </div>
                             </div>
-                        </div>
+                        </a>
                     `;
                 });
             }
