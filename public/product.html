@@ -1036,7 +1036,7 @@
                         <h1 class="product-title">${name}</h1>
                         <div class="product-price-row">
                             <span class="product-price">${prod.price}</span>
-                            <button class="btn-buy-primary" onclick="openCheckout('${name}', '${prod.price}', '${prod.type === 'print' ? 'digital' : 'physical'}')">${buyText}</button>
+                            <button class="btn-buy-primary" onclick="openCheckout('${name}', '${prod.price}', '${(prod.type === 'print' || prod.type === 'digital_book') ? 'digital' : 'physical'}')">${buyText}</button>
                         </div>
                     </div>
 
@@ -1121,7 +1121,7 @@
                             </div>
                             <div class="portfolio-buy-row" onclick="event.stopPropagation();">
                                 <span class="portfolio-price">${item.price}</span>
-                                <button class="btn-buy" onclick="openCheckout('${name}', '${item.price}', '${item.type === 'print' ? 'digital' : 'physical'}')">${buyText}</button>
+                                <button class="btn-buy" onclick="openCheckout('${name}', '${item.price}', '${(item.type === 'print' || item.type === 'digital_book') ? 'digital' : 'physical'}')">${buyText}</button>
                             </div>
                         </div>
                     </a>

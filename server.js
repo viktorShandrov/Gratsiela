@@ -95,7 +95,9 @@ app.post('/api/create-checkout-session', async (req, res) => {
         }
 
         const priceCents = parsePriceToCents(itemPrice);
-        const domainUrl = process.env.DOMAIN_URL || `http://localhost:${PORT}`;
+        const reqHost = req.get('host') || req.headers.host || `localhost:${PORT}`;
+        const protocol = req.headers['x-forwarded-proto'] || 'http';
+        const domainUrl = process.env.DOMAIN_URL || `${protocol}://${reqHost}`;
 
         let sessionId = 'local_session_' + Date.now();
         let checkoutUrl = `${domainUrl}/success.html?session_id=${sessionId}`;

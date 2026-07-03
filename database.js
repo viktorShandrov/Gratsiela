@@ -296,21 +296,6 @@ async function initDb() {
             ALTER TABLE products ADD COLUMN IF NOT EXISTS digital_download_url VARCHAR(1000) DEFAULT '';
         `);
 
-        // Seed products using ON CONFLICT to ensure defaults are present without duplicates
-        console.log('Ensuring default products are seeded into Postgres...');
-        const seedQuery = `
-            INSERT INTO products (id, name_en, name_bg, price, price_cents, type, desc_en, desc_bg, image, filter_class, materials_en, materials_bg, dimensions, symbolism_en, symbolism_bg, images)
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
-            ON CONFLICT (id) DO NOTHING
-        `;
-        for (const p of DEFAULT_PRODUCTS) {
-            await client.query(seedQuery, [
-                p.id, p.name_en, p.name_bg, p.price, p.priceCents, p.type, p.desc_en, p.desc_bg, p.image, p.filterClass || '',
-                p.materials_en || '', p.materials_bg || '', p.dimensions || '', p.symbolism_en || '', p.symbolism_bg || '',
-                JSON.stringify(p.images || [p.image || 'assets/card_artworks.png'])
-            ]);
-        }
-
         // Settings table
         await client.query(`
             CREATE TABLE IF NOT EXISTS settings (
@@ -318,6 +303,30 @@ async function initDb() {
                 value TEXT NOT NULL
             )
         `);
+
+        // Check if default products have already been seeded once
+        const seedCheckRes = await client.query("SELECT count(*) FROM settings WHERE key = 'default_products_seeded'");
+        const seedCheckCount = parseInt(seedCheckRes.rows[0].count, 10);
+
+        if (seedCheckCount === 0) {
+            console.log('Seed flag not found. Seeding default products into Postgres...');
+            const seedQuery = `
+                INSERT INTO products (id, name_en, name_bg, price, price_cents, type, desc_en, desc_bg, image, filter_class, materials_en, materials_bg, dimensions, symbolism_en, symbolism_bg, images, digital_download_url)
+                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)
+                ON CONFLICT (id) DO NOTHING
+            `;
+            for (const p of DEFAULT_PRODUCTS) {
+                await client.query(seedQuery, [
+                    p.id, p.name_en, p.name_bg, p.price, p.priceCents, p.type, p.desc_en, p.desc_bg, p.image, p.filterClass || '',
+                    p.materials_en || '', p.materials_bg || '', p.dimensions || '', p.symbolism_en || '', p.symbolism_bg || '',
+                    JSON.stringify(p.images || [p.image || 'assets/card_artworks.png']), p.digitalDownloadUrl || ''
+                ]);
+            }
+            // Mark default seeding as complete
+            await client.query("INSERT INTO settings (key, value) VALUES ('default_products_seeded', 'true')");
+        } else {
+            console.log('Default products already seeded once. Skipping seeding to respect admin deletions.');
+        }
 
         // Seed default password if not exists
         const settingsRes = await client.query("SELECT count(*) FROM settings WHERE key = 'dashboard_password'");

@@ -1965,7 +1965,7 @@ I believe that every work of art carries energy, history and message. For me, cr
 
             const canvasProds = allProducts.filter(p => p.type === 'canvas');
             const printProds = allProducts.filter(p => p.type === 'print');
-            const bookProds = allProducts.filter(p => p.type === 'book');
+            const bookProds = allProducts.filter(p => p.type === 'book' || p.type === 'digital_book');
 
             const buyBtnText = currentLanguage === 'bg' ? 'Купи Сега' : 'Buy Now';
 
@@ -2063,7 +2063,7 @@ I believe that every work of art carries energy, history and message. For me, cr
                         </ul>
                         <div class="portfolio-buy-row" style="width: 100%;">
                             <span class="portfolio-price">${book.price}</span>
-                            <button class="btn-buy" onclick="openCheckout('${name}', '${book.price}', 'physical')">${buyBtnText}</button>
+                            <button class="btn-buy" onclick="openCheckout('${name}', '${book.price}', '${book.type === 'digital_book' ? 'digital' : 'physical'}')">${buyBtnText}</button>
                         </div>
                     </div>
                 `;
