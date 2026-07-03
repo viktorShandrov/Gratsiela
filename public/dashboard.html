@@ -716,6 +716,28 @@
 
                 <div class="form-row">
                     <div class="form-group">
+                        <label for="prod-materials-en">Materials (English)</label>
+                        <input type="text" id="prod-materials-en" placeholder="E.g. Oil on Canvas">
+                    </div>
+                    <div class="form-group">
+                        <label for="prod-materials-bg">Materials (Bulgarian)</label>
+                        <input type="text" id="prod-materials-bg" placeholder="E.g. Маслени бои на платно">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="prod-dimensions">Dimensions (E.g. 50/70 cm)</label>
+                        <input type="text" id="prod-dimensions" placeholder="E.g. 50/70 cm">
+                    </div>
+                    <div class="form-group">
+                        <label for="prod-download-url">Digital Download Link (PDF / Cloud url)</label>
+                        <input type="text" id="prod-download-url" placeholder="E.g. Google Drive/Dropbox URL">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
                         <label for="prod-filter">CSS Image Filter (Optional)</label>
                         <input type="text" id="prod-filter" placeholder="E.g., hue-rotate(45deg)">
                     </div>
@@ -998,6 +1020,10 @@
             document.getElementById('prod-type').value = 'canvas';
             document.getElementById('prod-desc-en').value = '';
             document.getElementById('prod-desc-bg').value = '';
+            document.getElementById('prod-materials-en').value = '';
+            document.getElementById('prod-materials-bg').value = '';
+            document.getElementById('prod-dimensions').value = '';
+            document.getElementById('prod-download-url').value = '';
             document.getElementById('prod-filter').value = '';
             clearImageLinkRows();
 
@@ -1015,6 +1041,10 @@
                     document.getElementById('prod-type').value = product.type;
                     document.getElementById('prod-desc-en').value = product.desc_en;
                     document.getElementById('prod-desc-bg').value = product.desc_bg;
+                    document.getElementById('prod-materials-en').value = product.materials_en || '';
+                    document.getElementById('prod-materials-bg').value = product.materials_bg || '';
+                    document.getElementById('prod-dimensions').value = product.dimensions || '';
+                    document.getElementById('prod-download-url').value = product.digitalDownloadUrl || '';
                     document.getElementById('prod-filter').value = product.filterClass || '';
                     
                     // Populate images
@@ -1052,12 +1082,16 @@
             const type = document.getElementById('prod-type').value;
             const desc_en = document.getElementById('prod-desc-en').value;
             const desc_bg = document.getElementById('prod-desc-bg').value;
+            const materials_en = document.getElementById('prod-materials-en').value;
+            const materials_bg = document.getElementById('prod-materials-bg').value;
+            const dimensions = document.getElementById('prod-dimensions').value;
+            const digitalDownloadUrl = document.getElementById('prod-download-url').value;
             const filterClass = document.getElementById('prod-filter').value;
             
             const images = getAdditionalImages();
             const image = images.length > 0 ? images[0] : 'assets/card_artworks.png';
 
-            const payload = { name_en, name_bg, price, type, desc_en, desc_bg, image, filterClass, images };
+            const payload = { name_en, name_bg, price, type, desc_en, desc_bg, image, filterClass, images, materials_en, materials_bg, dimensions, digitalDownloadUrl };
 
             const isEdit = !!prodId;
             const apiUrl = isEdit ? `/api/products/${prodId}` : '/api/products';

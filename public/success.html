@@ -273,6 +273,11 @@
                                 downloadBtn.href = order.downloadUrl;
                                 downloadBtn.style.display = 'inline-block';
                                 document.getElementById('status-desc').innerText = `Thank you for your purchase! Your payment is verified, and your digital painting is ready for download. A download link has also been sent to ${order.customerEmail}.`;
+                                
+                                // Auto-trigger download after a small delay so user sees confirmation
+                                setTimeout(() => {
+                                    window.location.href = order.downloadUrl;
+                                }, 1500);
                             }
                         } else {
                             document.getElementById('rec-address').innerText = order.customerAddress;

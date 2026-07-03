@@ -375,7 +375,7 @@ app.post('/api/products', async (req, res) => {
     }
 
     try {
-        const { name_en, name_bg, price, type, desc_en, desc_bg, image, filterClass, images } = req.body;
+        const { name_en, name_bg, price, type, desc_en, desc_bg, image, filterClass, images, materials_en, materials_bg, dimensions, digitalDownloadUrl } = req.body;
         if (!name_en || !name_bg || !price || !type) {
             return res.status(400).json({ error: 'Missing required product information' });
         }
@@ -391,7 +391,11 @@ app.post('/api/products', async (req, res) => {
             desc_bg,
             image,
             filterClass,
-            images
+            images,
+            materials_en,
+            materials_bg,
+            dimensions,
+            digitalDownloadUrl
         });
 
         res.json({ success: true, product });
@@ -490,6 +494,14 @@ app.get('/api/download', async (req, res) => {
 
         if (order.type !== 'digital') {
             return res.status(400).json({ error: 'This order is not for a digital product' });
+        }
+
+        // Check if product has custom 3rd-party download link (e.g. Google Drive/Dropbox)
+        const products = await db.getProducts();
+        const product = products.find(p => p.name_en === order.itemName || p.name_bg === order.itemName);
+        
+        if (product && product.digitalDownloadUrl) {
+            return res.redirect(product.digitalDownloadUrl);
         }
 
         const fileName = getDigitalFileName(order.itemName);
