@@ -1980,7 +1980,7 @@ I believe that every work of art carries energy, history and message. For me, cr
                     const filterStyle = prod.filterClass ? `filter: ${prod.filterClass};` : '';
 
                     canvasContainer.innerHTML += `
-                        <div class="portfolio-item">
+                        <div class="portfolio-item" onclick="window.location.href='/product.html?id=${prod.id}'">
                             <div class="portfolio-img" style="background-image: url('${prod.image}'); ${filterStyle}"></div>
                             <div class="portfolio-info">
                                 <div>
@@ -1988,7 +1988,7 @@ I believe that every work of art carries energy, history and message. For me, cr
                                     <div class="portfolio-item-meta">${metaType}</div>
                                     <p class="portfolio-item-desc">${desc}</p>
                                 </div>
-                                <div class="portfolio-buy-row">
+                                <div class="portfolio-buy-row" onclick="event.stopPropagation();">
                                     <span class="portfolio-price">${prod.price}</span>
                                     <button class="btn-buy" onclick="openCheckout('${name}', '${prod.price}', 'physical')">${buyBtnText}</button>
                                 </div>
@@ -2009,7 +2009,7 @@ I believe that every work of art carries energy, history and message. For me, cr
                     const filterStyle = prod.filterClass ? `filter: ${prod.filterClass};` : '';
 
                     printsContainer.innerHTML += `
-                        <div class="portfolio-item">
+                        <div class="portfolio-item" onclick="window.location.href='/product.html?id=${prod.id}'">
                             <div class="portfolio-img" style="background-image: url('${prod.image}'); ${filterStyle}"></div>
                             <div class="portfolio-info">
                                 <div>
@@ -2017,7 +2017,7 @@ I believe that every work of art carries energy, history and message. For me, cr
                                     <div class="portfolio-item-meta">${metaType}</div>
                                     <p class="portfolio-item-desc">${desc}</p>
                                 </div>
-                                <div class="portfolio-buy-row">
+                                <div class="portfolio-buy-row" onclick="event.stopPropagation();">
                                     <span class="portfolio-price">${prod.price}</span>
                                     <button class="btn-buy" onclick="openCheckout('${name}', '${prod.price}', 'digital')">${buyBtnText}</button>
                                 </div>

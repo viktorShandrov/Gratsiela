@@ -1,0 +1,1178 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gratsiela Ivanova | Art Details</title>
+    
+    <!-- Google Fonts for Editorial Aesthetics -->
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@500;700&family=Montserrat:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400&display=swap" rel="stylesheet">
+    
+    <style>
+        /* Design Tokens & Theme Variables */
+        :root {
+            --bg-dark: #1c030a;        /* Deep Burgundy */
+            --bg-sidebar: #22050f;     /* Slightly lighter Burgundy for sidebar */
+            --bg-card-dark: #2A0813;   /* Rich Bordeaux Card Background */
+            --text-champagne: #eaddcb;  /* Champagne Beige */
+            --text-dark: #2A0813;       /* Dark Bordeaux text for light backgrounds */
+            --accent-gold: #c5a059;     /* Metallic Gold */
+            --accent-pink: #d86b84;     /* Vibrant Cyclamen Pink */
+            --bg-champagne: #eaddcb;    /* Solid Champagne */
+            --font-serif: 'Playfair Display', serif;
+            --font-sans: 'Montserrat', sans-serif;
+            --font-script: 'Dancing Script', cursive;
+        }
+
+        /* Reset and Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-champagne);
+            font-family: var(--font-sans);
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+            transition: all 0.3s ease;
+        }
+
+        /* Gold Gradient Utility */
+        .gold-text {
+            background: linear-gradient(135deg, #f5e5c9 0%, #c5a059 50%, #a47d3c 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--bg-dark);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--accent-gold);
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--accent-pink);
+        }
+
+        /* App Layout Container */
+        .app-container {
+            display: flex;
+            min-height: 100vh;
+            flex-direction: row;
+        }
+
+        /* --- DESKTOP SIDEBAR NAVIGATION --- */
+        .sidebar {
+            width: 260px;
+            border-right: 1px solid rgba(234, 221, 203, 0.15);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 50px 40px;
+            position: fixed;
+            height: 100vh;
+            background-color: var(--bg-sidebar);
+            z-index: 100;
+        }
+
+        .logo-container {
+            width: 90px;
+            height: 70px;
+            cursor: pointer;
+            transition: transform 0.4s ease;
+        }
+        .logo-container:hover {
+            transform: scale(1.05);
+        }
+        .logo-img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .back-nav ul {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+
+        .back-nav a {
+            font-size: 0.85rem;
+            font-weight: 400;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--accent-gold);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .back-nav a:hover {
+            color: var(--text-champagne);
+            transform: translateX(-5px);
+        }
+
+        .sidebar-bottom {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+
+        .lang-switch {
+            display: flex;
+            gap: 15px;
+            font-size: 0.75rem;
+            letter-spacing: 1px;
+        }
+
+        .lang-btn {
+            background: transparent;
+            border: none;
+            color: rgba(234, 221, 203, 0.4);
+            cursor: pointer;
+            font-weight: 500;
+            transition: color 0.3s;
+            text-transform: uppercase;
+        }
+
+        .lang-btn.active, .lang-btn:hover {
+            color: var(--accent-gold);
+        }
+
+        /* --- MAIN VIEWPORT --- */
+        .main-content {
+            flex: 1;
+            margin-left: 260px;
+            padding: 60px 80px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            gap: 60px;
+        }
+
+        /* --- MOBILE TOP NAVIGATION --- */
+        .mobile-header {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 70px;
+            background-color: var(--bg-sidebar);
+            border-bottom: 1px solid rgba(234, 221, 203, 0.15);
+            z-index: 200;
+            padding: 0 30px;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .mobile-back-btn {
+            color: var(--accent-gold);
+            font-size: 0.9rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .mobile-lang-switch {
+            font-size: 0.75rem;
+            display: flex;
+            gap: 10px;
+        }
+        .mobile-lang-switch span {
+            color: rgba(234, 221, 203, 0.4);
+            cursor: pointer;
+            font-weight: 500;
+        }
+        .mobile-lang-switch span.active {
+            color: var(--accent-gold);
+        }
+
+        /* --- PRODUCT GRID --- */
+        .product-detail-container {
+            display: grid;
+            grid-template-columns: 1.1fr 0.9fr;
+            gap: 60px;
+            margin-top: 20px;
+        }
+
+        .product-image-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .product-image-wrapper {
+            width: 100%;
+            aspect-ratio: 4/5;
+            background-size: cover;
+            background-position: center;
+            border: 1px solid rgba(234, 221, 203, 0.15);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+            border-radius: 2px;
+            transition: transform 0.5s ease;
+        }
+        .product-image-wrapper:hover {
+            transform: scale(1.02);
+        }
+
+        .product-info-section {
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            gap: 30px;
+        }
+
+        .product-header {
+            border-bottom: 1px solid rgba(234, 221, 203, 0.15);
+            padding-bottom: 20px;
+        }
+
+        .product-title {
+            font-family: var(--font-serif);
+            font-size: 2.8rem;
+            font-weight: 400;
+            line-height: 1.2;
+            margin-bottom: 10px;
+        }
+
+        .product-type {
+            font-family: var(--font-sans);
+            font-size: 0.85rem;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--accent-gold);
+        }
+
+        .product-price-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 10px;
+        }
+
+        .product-price {
+            font-family: var(--font-serif);
+            font-size: 2.2rem;
+            font-weight: 600;
+            color: var(--accent-gold);
+        }
+
+        .btn-buy-primary {
+            background-color: var(--accent-gold);
+            color: var(--bg-dark);
+            border: 1px solid var(--accent-gold);
+            padding: 18px 40px;
+            font-family: var(--font-sans);
+            font-size: 0.85rem;
+            font-weight: 600;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 25px rgba(197, 160, 89, 0.25);
+            border-radius: 2px;
+        }
+        .btn-buy-primary:hover {
+            background-color: transparent;
+            color: var(--accent-gold);
+            box-shadow: none;
+            transform: translateY(-2px);
+        }
+
+        /* Spec list */
+        .product-specs {
+            background-color: var(--bg-sidebar);
+            border: 1px solid rgba(234, 221, 203, 0.1);
+            padding: 25px;
+            border-radius: 4px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .spec-item {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            border-bottom: 1px solid rgba(234, 221, 203, 0.05);
+            padding-bottom: 10px;
+        }
+        .spec-item:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
+        .spec-label {
+            color: rgba(234, 221, 203, 0.5);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+        }
+
+        .spec-value {
+            color: var(--text-champagne);
+            font-weight: 500;
+            text-align: right;
+            max-width: 60%;
+        }
+
+        /* Symbolism / Description */
+        .product-symbolism {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .section-label {
+            font-family: var(--font-serif);
+            font-size: 1.3rem;
+            letter-spacing: 1px;
+            position: relative;
+            padding-bottom: 10px;
+        }
+        .section-label::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 40px;
+            height: 1px;
+            background-color: var(--accent-gold);
+        }
+
+        .symbolism-text {
+            font-size: 0.95rem;
+            color: rgba(234, 221, 203, 0.8);
+            line-height: 1.8;
+            text-align: justify;
+        }
+
+        /* --- SUGGESTED ARTWORKS --- */
+        .suggestions-section {
+            border-top: 1px solid rgba(234, 221, 203, 0.15);
+            padding-top: 50px;
+            margin-top: 20px;
+        }
+
+        .suggestions-title {
+            font-family: var(--font-serif);
+            font-size: 2rem;
+            text-align: center;
+            margin-bottom: 40px;
+            letter-spacing: 2px;
+        }
+
+        .portfolio-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 40px;
+        }
+
+        .portfolio-item {
+            background-color: var(--bg-sidebar);
+            border: 1px solid rgba(234, 221, 203, 0.1);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            transition: all 0.4s ease;
+            cursor: pointer;
+        }
+        .portfolio-item:hover {
+            transform: translateY(-8px);
+            border-color: var(--accent-gold);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .portfolio-img {
+            width: 100%;
+            aspect-ratio: 4/5;
+            background-size: cover;
+            background-position: center;
+            border-bottom: 1px solid rgba(234, 221, 203, 0.1);
+            transition: transform 0.6s ease;
+        }
+        .portfolio-item:hover .portfolio-img {
+            transform: scale(1.03);
+        }
+
+        .portfolio-info {
+            padding: 25px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            flex: 1;
+            gap: 20px;
+        }
+
+        .portfolio-item-title {
+            font-family: var(--font-serif);
+            font-size: 1.25rem;
+            font-weight: 400;
+            margin-bottom: 5px;
+            color: var(--text-champagne);
+        }
+
+        .portfolio-item-meta {
+            font-size: 0.75rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--accent-gold);
+            margin-bottom: 12px;
+        }
+
+        .portfolio-item-desc {
+            font-size: 0.85rem;
+            color: rgba(234, 221, 203, 0.6);
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            line-height: 1.6;
+        }
+
+        .portfolio-buy-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: auto;
+        }
+
+        .portfolio-price {
+            font-family: var(--font-serif);
+            font-weight: 600;
+            font-size: 1.15rem;
+            color: var(--accent-gold);
+        }
+
+        .btn-buy {
+            background-color: transparent;
+            color: var(--text-champagne);
+            border: 1px solid var(--accent-gold);
+            padding: 10px 20px;
+            font-family: var(--font-sans);
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-buy:hover {
+            background-color: var(--accent-gold);
+            color: var(--bg-dark);
+        }
+
+        /* --- PREMIUM CHECKOUT MODAL --- */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(28, 3, 10, 0.85);
+            backdrop-filter: blur(8px);
+            z-index: 400;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background-color: var(--bg-sidebar);
+            border: 1px solid var(--accent-gold);
+            width: 100%;
+            max-width: 500px;
+            padding: 40px;
+            border-radius: 4px;
+            position: relative;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7);
+            transform: scale(0.9);
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .modal.active .modal-content {
+            transform: scale(1);
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: transparent;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--text-champagne);
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+
+        .close-modal:hover {
+            color: var(--accent-pink);
+        }
+
+        .modal-title {
+            font-family: var(--font-serif);
+            font-size: 1.5rem;
+            margin-bottom: 25px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            border-bottom: 1px solid rgba(234, 221, 203, 0.1);
+            padding-bottom: 15px;
+        }
+
+        .order-summary {
+            background-color: var(--bg-dark);
+            padding: 15px 20px;
+            margin-bottom: 25px;
+            border-left: 3px solid var(--accent-gold);
+            display: flex;
+            justify-content: space-between;
+            font-weight: 500;
+        }
+
+        .order-price {
+            color: var(--accent-gold);
+            font-family: var(--font-serif);
+            font-weight: 600;
+        }
+
+        /* Loading Spinner */
+        .spinner {
+            display: none;
+            width: 30px;
+            height: 30px;
+            border: 2px solid rgba(234, 221, 203, 0.2);
+            border-top-color: var(--accent-gold);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 20px auto 0 auto;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Success Message State */
+        .success-state {
+            display: none;
+            text-align: center;
+            padding: 20px 0;
+        }
+
+        .success-icon {
+            font-size: 3rem;
+            color: var(--accent-gold);
+            margin-bottom: 20px;
+        }
+
+        .success-title {
+            font-family: var(--font-serif);
+            font-size: 1.4rem;
+            margin-bottom: 15px;
+        }
+
+        .success-text {
+            font-size: 0.9rem;
+            color: rgba(234, 221, 203, 0.7);
+            line-height: 1.6;
+        }
+
+        .contact-form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-group label {
+            font-size: 0.75rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--accent-gold);
+            font-weight: 500;
+        }
+
+        .form-group input {
+            background-color: var(--bg-sidebar);
+            border: 1px solid rgba(234, 221, 203, 0.2);
+            padding: 15px;
+            font-family: var(--font-sans);
+            font-size: 0.9rem;
+            color: var(--text-champagne);
+            transition: all 0.3s;
+            border-radius: 2px;
+        }
+
+        .form-group input:focus {
+            border-color: var(--accent-gold);
+            outline: none;
+            box-shadow: 0 0 5px rgba(197, 160, 89, 0.2);
+        }
+
+        .btn-submit {
+            background-color: transparent;
+            color: var(--text-champagne);
+            border: 1px solid var(--accent-gold);
+            padding: 15px;
+            font-family: var(--font-sans);
+            font-size: 0.8rem;
+            font-weight: 600;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+
+        .btn-submit:hover {
+            background-color: var(--accent-gold);
+            color: var(--bg-dark);
+        }
+
+        /* --- RESPONSIVE MEDIA QUERIES --- */
+        @media (max-width: 1024px) {
+            .app-container {
+                flex-direction: column;
+            }
+            .sidebar {
+                display: none; /* Hide desktop sidebar */
+            }
+            .mobile-header {
+                display: flex;
+            }
+            .main-content {
+                margin-left: 0;
+                padding: 110px 30px 60px 30px; /* Offset for sticky mobile header */
+            }
+            .product-detail-container {
+                grid-template-columns: 1fr;
+                gap: 40px;
+            }
+            .portfolio-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 25px;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .portfolio-grid {
+                grid-template-columns: 1fr;
+                gap: 25px;
+            }
+            .product-title {
+                font-size: 2rem;
+            }
+            .product-price {
+                font-size: 1.8rem;
+            }
+            .btn-buy-primary {
+                padding: 15px 30px;
+                font-size: 0.8rem;
+            }
+            .modal-content {
+                padding: 25px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        
+        <!-- DESKTOP SIDEBAR -->
+        <aside class="sidebar">
+            <div class="logo-container" onclick="window.location.href='/'">
+                <img src="assets/logo.png" alt="Gratsiela Ivanova" class="logo-img">
+            </div>
+            
+            <nav class="back-nav">
+                <ul>
+                    <li>
+                        <a href="/" id="back-link-desktop">
+                            <span>←</span> <span data-i18n="back-to-gallery">Back to Gallery</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+            
+            <div class="sidebar-bottom">
+                <div class="lang-switch">
+                    <button class="lang-btn" id="lang-btn-bg" onclick="setLanguage('bg')">BG</button>
+                    <span style="color: rgba(234, 221, 203, 0.15)">|</span>
+                    <button class="lang-btn" id="lang-btn-en" onclick="setLanguage('en')">EN</button>
+                </div>
+                <div class="copyright" data-i18n="copyright">© 2026 Gratsiela</div>
+            </div>
+        </aside>
+
+        <!-- MOBILE STICKY HEADER -->
+        <header class="mobile-header">
+            <a href="/" class="mobile-back-btn" id="back-link-mobile">
+                <span>←</span> <span data-i18n="back-to-gallery">Back</span>
+            </a>
+            
+            <div class="mobile-lang-switch">
+                <span id="mob-lang-bg" onclick="setLanguage('bg')">BG</span>
+                <span style="color: rgba(234, 221, 203, 0.15)">|</span>
+                <span id="mob-lang-en" onclick="setLanguage('en')">EN</span>
+            </div>
+        </header>
+
+        <!-- MAIN VIEWPORT -->
+        <main class="main-content">
+            
+            <!-- Detail layout container -->
+            <div class="product-detail-container" id="product-details-root">
+                <!-- Content generated dynamically -->
+                <div style="grid-column: 1/-1; text-align: center; padding: 100px 0; color: rgba(234, 221, 203, 0.4);">
+                    Loading artwork details...
+                </div>
+            </div>
+
+            <!-- Suggestions Grid Section -->
+            <section class="suggestions-section">
+                <h3 class="suggestions-title" data-i18n="suggested-title">Other Artworks</h3>
+                <div class="portfolio-grid" id="suggested-artworks-root">
+                    <!-- Suggested items generated dynamically -->
+                </div>
+            </section>
+
+        </main>
+
+        <!-- PURCHASE MODAL -->
+        <div class="modal" id="checkout-modal">
+            <div class="modal-content">
+                <button class="close-modal" onclick="closeCheckout()">✕</button>
+                
+                <!-- Purchase Form State -->
+                <div id="checkout-form-state">
+                    <h3 class="modal-title" data-i18n="chk-title">Complete Your Order</h3>
+                    <div class="order-summary">
+                        <span id="checkout-item-name">Artwork Title</span>
+                        <span class="order-price" id="checkout-item-price">€0.00</span>
+                    </div>
+                    
+                    <form onsubmit="handleCheckoutSubmit(event)" class="contact-form">
+                        <div class="form-group">
+                            <label for="chk-name" data-i18n="form-name">Full Name</label>
+                            <input type="text" id="chk-name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="chk-email" data-i18n="form-email">Email Address</label>
+                            <input type="email" id="chk-email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="chk-address" data-i18n="chk-address">Shipping Address</label>
+                            <input type="text" id="chk-address" placeholder="Street, City, Zip, Country" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="chk-phone" data-i18n="chk-phone">Phone Number</label>
+                            <input type="tel" id="chk-phone" required>
+                        </div>
+                        <div class="form-group" id="payment-method-group">
+                            <label data-i18n="chk-method">Payment Method</label>
+                            <div style="display: flex; gap: 20px; margin-top: 8px; font-size: 0.85rem;">
+                                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; color: var(--text-champagne);">
+                                    <input type="radio" name="payment-method" value="stripe" checked style="accent-color: var(--accent-gold);"><span data-i18n="chk-card">Card Payment</span>
+                                </label>
+                                <label id="cod-option-label" style="display: flex; align-items: center; gap: 8px; cursor: pointer; color: var(--text-champagne);">
+                                    <input type="radio" name="payment-method" value="cod" style="accent-color: var(--accent-gold);"><span data-i18n="chk-cod">Cash on Delivery</span>
+                                </label>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn-submit" data-i18n="chk-submit">Submit Order</button>
+                        <div class="spinner" id="checkout-spinner"></div>
+                    </form>
+                </div>
+                
+                <!-- Purchase Success State -->
+                <div id="checkout-success-state" class="success-state">
+                    <div class="success-icon">✓</div>
+                    <h3 class="success-title" data-i18n="chk-success-title">Order Received</h3>
+                    <p class="success-text" id="success-message-text">
+                        Thank you for your order! We will reach out to you via email within 24 hours to organize secure shipping and final invoice payment.
+                    </p>
+                    <button class="btn-submit" onclick="closeCheckout()" style="width: auto; margin-top: 25px; display: inline-block; padding: 10px 30px;" data-i18n="chk-close">Close Window</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- SCRIPT FOR LOADING PRODUCTS AND INTERACTIVITY -->
+    <script>
+        const translations = {
+            en: {
+                "back-to-gallery": "Back to Gallery",
+                "copyright": "© 2026 Gratsiela",
+                "suggested-title": "Other Artworks",
+                "materials-label": "Materials",
+                "dimensions-label": "Dimensions",
+                "symbolism-label": "Symbolism & Meaning",
+                "buy-btn": "Buy Now",
+                "form-name": "Full Name",
+                "form-email": "Email Address",
+                "chk-address": "Shipping Address",
+                "chk-phone": "Phone Number",
+                "chk-method": "Payment Method",
+                "chk-card": "Card Payment",
+                "chk-cod": "Cash on Delivery",
+                "chk-submit": "Submit Order",
+                "chk-success-title": "Order Received",
+                "chk-close": "Close Window",
+                "chk-title": "Complete Your Order",
+                "not-found": "Artwork not found.",
+                "type-canvas": "Acrylic & Oil on Canvas",
+                "type-print": "Giclée Fine Art Print",
+                "type-book": "Archival Art Book"
+            },
+            bg: {
+                "back-to-gallery": "Назад към галерията",
+                "copyright": "© 2026 Грациела",
+                "suggested-title": "Други картини",
+                "materials-label": "Материали",
+                "dimensions-label": "Размери",
+                "symbolism-label": "Символика и смисъл",
+                "buy-btn": "Купи Сега",
+                "form-name": "Вашето име",
+                "form-email": "Имейл адрес",
+                "chk-address": "Адрес за доставка",
+                "chk-phone": "Телефонен номер",
+                "chk-method": "Начин на плащане",
+                "chk-card": "Плащане с карта",
+                "chk-cod": "Наложен платеж",
+                "chk-submit": "Поръчай сега",
+                "chk-success-title": "Поръчката е получена",
+                "chk-close": "Затвори",
+                "chk-title": "Завърши поръчката",
+                "not-found": "Картината не е намерена.",
+                "type-canvas": "Маслени бои върху платно",
+                "type-print": "Художествен принт (Giclée)",
+                "type-book": "Колекционерска книга"
+            }
+        };
+
+        let currentLanguage = localStorage.getItem('preferred_lang') || 'en';
+        let allProducts = [];
+        let activeProduct = null;
+
+        // Checkout State Variables
+        let selectedItemName = "";
+        let selectedItemPrice = "";
+        let selectedItemType = "";
+
+        // Parse query params to get Product ID
+        const urlParams = new URLSearchParams(window.location.search);
+        const productId = urlParams.get('id');
+
+        function setLanguage(lang) {
+            currentLanguage = lang;
+            localStorage.setItem('preferred_lang', lang);
+            document.documentElement.lang = lang;
+
+            // Apply translations to data-i18n elements
+            document.querySelectorAll('[data-i18n]').forEach(element => {
+                const key = element.getAttribute('data-i18n');
+                if (translations[lang][key]) {
+                    element.innerHTML = translations[lang][key];
+                }
+            });
+
+            // Update UI states of lang switch
+            document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('active'));
+            const activeBtn = document.getElementById(`lang-btn-${lang}`);
+            if (activeBtn) activeBtn.classList.add('active');
+
+            document.querySelectorAll('.mobile-lang-switch span').forEach(span => span.classList.remove('active'));
+            const activeMob = document.getElementById(`mob-lang-${lang}`);
+            if (activeMob) activeMob.classList.add('active');
+
+            // Re-render
+            if (activeProduct) {
+                renderProductDetails(activeProduct);
+                renderSuggestions(activeProduct);
+            }
+        }
+
+        // Fetch products
+        function initProductPage() {
+            if (!productId) {
+                window.location.href = '/';
+                return;
+            }
+
+            fetch('/api/products')
+                .then(res => res.json())
+                .then(products => {
+                    allProducts = products;
+                    activeProduct = products.find(p => p.id === productId);
+                    
+                    if (!activeProduct) {
+                        const root = document.getElementById('product-details-root');
+                        root.innerHTML = `<div style="grid-column: 1/-1; text-align: center; padding: 100px 0; color: var(--accent-pink);">${currentLanguage === 'bg' ? translations.bg["not-found"] : translations.en["not-found"]}</div>`;
+                        return;
+                    }
+
+                    // Set Page Title
+                    document.title = `${currentLanguage === 'bg' ? activeProduct.name_bg : activeProduct.name_en} | Gratsiela Ivanova`;
+
+                    setLanguage(currentLanguage);
+                })
+                .catch(err => {
+                    console.error('Error loading product details:', err);
+                });
+        }
+
+        function renderProductDetails(prod) {
+            const root = document.getElementById('product-details-root');
+            if (!root) return;
+
+            const name = currentLanguage === 'bg' ? prod.name_bg : prod.name_en;
+            const desc = currentLanguage === 'bg' ? prod.desc_bg : prod.desc_en;
+            const symbolism = currentLanguage === 'bg' ? (prod.symbolism_bg || desc) : (prod.symbolism_en || desc);
+            const materials = currentLanguage === 'bg' ? (prod.materials_bg || 'Маслени бои на платно') : (prod.materials_en || 'Oil on Canvas');
+            const dimensions = prod.dimensions || (currentLanguage === 'bg' ? 'уточняват се при запитване' : 'TBD');
+            
+            let metaType = currentLanguage === 'bg' ? translations.bg["type-canvas"] : translations.en["type-canvas"];
+            if (prod.type === 'print') {
+                metaType = currentLanguage === 'bg' ? translations.bg["type-print"] : translations.en["type-print"];
+            } else if (prod.type === 'book') {
+                metaType = currentLanguage === 'bg' ? translations.bg["type-book"] : translations.en["type-book"];
+            }
+
+            const filterStyle = prod.filterClass ? `filter: ${prod.filterClass};` : '';
+            const buyText = currentLanguage === 'bg' ? translations.bg["buy-btn"] : translations.en["buy-btn"];
+
+            root.innerHTML = `
+                <!-- Image column -->
+                <div class="product-image-section">
+                    <div class="product-image-wrapper" style="background-image: url('${prod.image}'); ${filterStyle}"></div>
+                </div>
+
+                <!-- Info column -->
+                <div class="product-info-section">
+                    <div class="product-header">
+                        <span class="product-type">${metaType}</span>
+                        <h1 class="product-title">${name}</h1>
+                        <div class="product-price-row">
+                            <span class="product-price">${prod.price}</span>
+                            <button class="btn-buy-primary" onclick="openCheckout('${name}', '${prod.price}', '${prod.type === 'print' ? 'digital' : 'physical'}')">${buyText}</button>
+                        </div>
+                    </div>
+
+                    <!-- Tech specs box -->
+                    <div class="product-specs">
+                        <div class="spec-item">
+                            <span class="spec-label">${currentLanguage === 'bg' ? translations.bg["materials-label"] : translations.en["materials-label"]}</span>
+                            <span class="spec-value">${materials}</span>
+                        </div>
+                        <div class="spec-item">
+                            <span class="spec-label">${currentLanguage === 'bg' ? translations.bg["dimensions-label"] : translations.en["dimensions-label"]}</span>
+                            <span class="spec-value">${dimensions}</span>
+                        </div>
+                    </div>
+
+                    <!-- Description / Symbolism -->
+                    <div class="product-symbolism">
+                        <h3 class="section-label">${currentLanguage === 'bg' ? translations.bg["symbolism-label"] : translations.en["symbolism-label"]}</h3>
+                        <p class="symbolism-text">${symbolism}</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderSuggestions(prod) {
+            const root = document.getElementById('suggested-artworks-root');
+            if (!root) return;
+
+            // Filter out current product and randomize suggestions
+            const otherProducts = allProducts.filter(p => p.id !== prod.id);
+            // Sort to prefer same type
+            const sorted = otherProducts.sort((a, b) => {
+                if (a.type === prod.type && b.type !== prod.type) return -1;
+                if (a.type !== prod.type && b.type === prod.type) return 1;
+                return 0;
+            });
+
+            // Get first 3 items
+            const suggestions = sorted.slice(0, 3);
+            const buyText = currentLanguage === 'bg' ? 'Купи' : 'Buy';
+
+            root.innerHTML = '';
+            suggestions.forEach(item => {
+                const name = currentLanguage === 'bg' ? item.name_bg : item.name_en;
+                const desc = currentLanguage === 'bg' ? item.desc_bg : item.desc_en;
+                
+                let metaType = currentLanguage === 'bg' ? translations.bg["type-canvas"] : translations.en["type-canvas"];
+                if (item.type === 'print') {
+                    metaType = currentLanguage === 'bg' ? translations.bg["type-print"] : translations.en["type-print"];
+                } else if (item.type === 'book') {
+                    metaType = currentLanguage === 'bg' ? translations.bg["type-book"] : translations.en["type-book"];
+                }
+
+                const filterStyle = item.filterClass ? `filter: ${item.filterClass};` : '';
+
+                root.innerHTML += `
+                    <div class="portfolio-item" onclick="window.location.href='/product.html?id=${item.id}'">
+                        <div class="portfolio-img" style="background-image: url('${item.image}'); ${filterStyle}"></div>
+                        <div class="portfolio-info">
+                            <div>
+                                <h3 class="portfolio-item-title">${name}</h3>
+                                <div class="portfolio-item-meta">${metaType}</div>
+                                <p class="portfolio-item-desc">${desc}</p>
+                            </div>
+                            <div class="portfolio-buy-row" onclick="event.stopPropagation();">
+                                <span class="portfolio-price">${item.price}</span>
+                                <button class="btn-buy" onclick="openCheckout('${name}', '${item.price}', '${item.type === 'print' ? 'digital' : 'physical'}')">${buyText}</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        // --- CHECKOUT MODAL LOGIC ---
+        function openCheckout(itemName, itemPrice, itemType) {
+            selectedItemName = itemName;
+            selectedItemPrice = itemPrice;
+            selectedItemType = itemType;
+
+            document.getElementById('checkout-item-name').innerText = itemName;
+            document.getElementById('checkout-item-price').innerText = itemPrice;
+
+            // Reset Form Fields
+            document.getElementById('chk-name').value = '';
+            document.getElementById('chk-email').value = '';
+            document.getElementById('chk-address').value = '';
+            document.getElementById('chk-phone').value = '';
+
+            const addressField = document.getElementById('chk-address');
+            const addressGroup = addressField.parentElement;
+            const codOption = document.getElementById('cod-option-label');
+            const stripeRadio = document.querySelector('input[name="payment-method"][value="stripe"]');
+            
+            stripeRadio.checked = true;
+
+            if (itemType === 'digital') {
+                addressGroup.style.display = 'none';
+                addressField.required = false;
+                codOption.style.display = 'none';
+            } else {
+                addressGroup.style.display = 'block';
+                addressField.required = true;
+                codOption.style.display = 'flex';
+            }
+
+            // Reset States
+            document.getElementById('checkout-form-state').style.display = 'block';
+            document.getElementById('checkout-success-state').style.display = 'none';
+            document.getElementById('checkout-spinner').style.display = 'none';
+
+            document.getElementById('checkout-modal').classList.add('active');
+        }
+
+        function closeCheckout() {
+            document.getElementById('checkout-modal').classList.remove('active');
+        }
+
+        function handleCheckoutSubmit(event) {
+            event.preventDefault();
+            
+            const customerName = document.getElementById('chk-name').value;
+            const customerEmail = document.getElementById('chk-email').value;
+            const customerAddress = document.getElementById('chk-address').value;
+            const customerPhone = document.getElementById('chk-phone').value;
+            const paymentMethod = document.querySelector('input[name="payment-method"]:checked').value;
+
+            document.getElementById('checkout-spinner').style.display = 'block';
+
+            const payload = {
+                itemName: selectedItemName,
+                itemPrice: selectedItemPrice,
+                type: selectedItemType,
+                customerName,
+                customerEmail,
+                customerAddress: selectedItemType === 'digital' ? 'N/A' : customerAddress,
+                customerPhone
+            };
+
+            if (paymentMethod === 'stripe') {
+                fetch('/api/create-checkout-session', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                })
+                .then(res => {
+                    if (!res.ok) throw new Error('Stripe session creation failed');
+                    return res.json();
+                })
+                .then(data => {
+                    document.getElementById('checkout-spinner').style.display = 'none';
+                    window.location.href = data.url;
+                })
+                .catch(err => {
+                    console.error(err);
+                    document.getElementById('checkout-spinner').style.display = 'none';
+                    alert(currentLanguage === 'bg' ? 'Неуспешна връзка с разплащането. Моля опитайте отново.' : 'Failed to connect to card checkout. Please try again.');
+                });
+            } else {
+                fetch('/api/create-cod-order', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                })
+                .then(res => {
+                    if (!res.ok) throw new Error('COD order registration failed');
+                    return res.json();
+                })
+                .then(data => {
+                    document.getElementById('checkout-spinner').style.display = 'none';
+                    document.getElementById('checkout-form-state').style.display = 'none';
+                    
+                    const successMsg = currentLanguage === 'bg' 
+                        ? `Благодарим ви, ${customerName}! Вашата поръчка за "${selectedItemName}" беше регистрирана успешно с наложен платеж. Ще ви изпратим имейл на ${customerEmail} с подробности за доставката.` 
+                        : `Thank you, ${customerName}! Your order for "${selectedItemName}" has been successfully recorded as Cash on Delivery. We will email you at ${customerEmail} to confirm shipping details shortly.`;
+                    
+                    document.getElementById('success-message-text').innerText = successMsg;
+                    document.getElementById('checkout-success-state').style.display = 'block';
+                })
+                .catch(err => {
+                    console.error(err);
+                    document.getElementById('checkout-spinner').style.display = 'none';
+                    alert(currentLanguage === 'bg' ? 'Неуспешна поръчка. Моля проверете връзката си.' : 'Failed to register Cash on Delivery order. Please check connection.');
+                });
+            }
+        }
+
+        // Initialize Page
+        window.addEventListener('DOMContentLoaded', initProductPage);
+    </script>
+</body>
+</html>
