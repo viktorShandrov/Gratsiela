@@ -702,23 +702,35 @@ async function getProducts() {
         await checkInit();
         try {
             const res = await pool.query('SELECT * FROM products');
-            return res.rows.map(row => ({
-                id: row.id,
-                name_en: row.name_en,
-                name_bg: row.name_bg,
-                price: row.price,
-                priceCents: row.price_cents,
-                type: row.type,
-                desc_en: row.desc_en,
-                desc_bg: row.desc_bg,
-                image: row.image,
-                filterClass: row.filter_class,
-                materials_en: row.materials_en,
-                materials_bg: row.materials_bg,
-                dimensions: row.dimensions,
-                symbolism_en: row.symbolism_en,
-                symbolism_bg: row.symbolism_bg
-            }));
+            return res.rows.map(row => {
+                let parsedImages = [];
+                try {
+                    parsedImages = JSON.parse(row.images || '[]');
+                } catch(e) {
+                    parsedImages = [];
+                }
+                if (parsedImages.length === 0 && row.image) {
+                    parsedImages = [row.image];
+                }
+                return {
+                    id: row.id,
+                    name_en: row.name_en,
+                    name_bg: row.name_bg,
+                    price: row.price,
+                    priceCents: row.price_cents,
+                    type: row.type,
+                    desc_en: row.desc_en,
+                    desc_bg: row.desc_bg,
+                    image: row.image,
+                    filterClass: row.filter_class,
+                    materials_en: row.materials_en,
+                    materials_bg: row.materials_bg,
+                    dimensions: row.dimensions,
+                    symbolism_en: row.symbolism_en,
+                    symbolism_bg: row.symbolism_bg,
+                    images: parsedImages
+                };
+            });
         } catch (err) {
             console.error('Error fetching products from Postgres:', err);
             return [];
@@ -745,20 +757,22 @@ async function addProduct(prodData) {
         materials_bg: prodData.materials_bg || '',
         dimensions: prodData.dimensions || '',
         symbolism_en: prodData.symbolism_en || '',
-        symbolism_bg: prodData.symbolism_bg || ''
+        symbolism_bg: prodData.symbolism_bg || '',
+        images: prodData.images || [prodData.image || 'assets/card_artworks.png']
     };
 
     if (usePostgres) {
         await checkInit();
         try {
             const query = `
-                INSERT INTO products (id, name_en, name_bg, price, price_cents, type, desc_en, desc_bg, image, filter_class, materials_en, materials_bg, dimensions, symbolism_en, symbolism_bg)
-                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
+                INSERT INTO products (id, name_en, name_bg, price, price_cents, type, desc_en, desc_bg, image, filter_class, materials_en, materials_bg, dimensions, symbolism_en, symbolism_bg, images)
+                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
             `;
             await pool.query(query, [
                 newProduct.id, newProduct.name_en, newProduct.name_bg, newProduct.price, newProduct.priceCents,
                 newProduct.type, newProduct.desc_en, newProduct.desc_bg, newProduct.image, newProduct.filterClass,
-                newProduct.materials_en, newProduct.materials_bg, newProduct.dimensions, newProduct.symbolism_en, newProduct.symbolism_bg
+                newProduct.materials_en, newProduct.materials_bg, newProduct.dimensions, newProduct.symbolism_en, newProduct.symbolism_bg,
+                JSON.stringify(newProduct.images)
             ]);
             return newProduct;
         } catch (err) {
@@ -795,6 +809,7 @@ async function updateProduct(prodId, updates) {
             if (updates.dimensions !== undefined) { keys.push(`dimensions = $${i++}`); values.push(updates.dimensions); }
             if (updates.symbolism_en !== undefined) { keys.push(`symbolism_en = $${i++}`); values.push(updates.symbolism_en); }
             if (updates.symbolism_bg !== undefined) { keys.push(`symbolism_bg = $${i++}`); values.push(updates.symbolism_bg); }
+            if (updates.images !== undefined) { keys.push(`images = $${i++}`); values.push(JSON.stringify(updates.images)); }
 
             if (keys.length === 0) return null;
 
@@ -808,6 +823,17 @@ async function updateProduct(prodId, updates) {
             const res = await pool.query(query, values);
             if (res.rows.length === 0) return null;
             const row = res.rows[0];
+
+            let parsedImages = [];
+            try {
+                parsedImages = JSON.parse(row.images || '[]');
+            } catch(e) {
+                parsedImages = [];
+            }
+            if (parsedImages.length === 0 && row.image) {
+                parsedImages = [row.image];
+            }
+
             return {
                 id: row.id,
                 name_en: row.name_en,
@@ -823,7 +849,8 @@ async function updateProduct(prodId, updates) {
                 materials_bg: row.materials_bg,
                 dimensions: row.dimensions,
                 symbolism_en: row.symbolism_en,
-                symbolism_bg: row.symbolism_bg
+                symbolism_bg: row.symbolism_bg,
+                images: parsedImages
             };
         } catch (err) {
             console.error('Error updating product in Postgres:', err);
