@@ -67,8 +67,8 @@ ${message}`,
 /**
  * Send order notification email to the owner
  */
-async function sendOrderNotificationEmail(order) {
-    const domainUrl = process.env.DOMAIN_URL || 'http://localhost:3000';
+async function sendOrderNotificationEmail(order, hostUrl = null) {
+    const domainUrl = hostUrl || process.env.DOMAIN_URL || 'http://localhost:3000';
     let digitalSectionHtml = '';
     let digitalSectionText = '';
 

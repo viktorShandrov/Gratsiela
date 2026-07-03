@@ -172,7 +172,10 @@ app.get('/api/verify-checkout-session', async (req, res) => {
             const updatedOrder = await db.getOrderBySessionId(session_id);
             
             if (!wasPaid) {
-                emailHelper.sendOrderNotificationEmail(updatedOrder).catch(err => {
+                const reqHost = req.get('host') || req.headers.host || `localhost:${PORT}`;
+                const protocol = req.headers['x-forwarded-proto'] || 'http';
+                const domainUrl = process.env.DOMAIN_URL || `${protocol}://${reqHost}`;
+                emailHelper.sendOrderNotificationEmail(updatedOrder, domainUrl).catch(err => {
                     console.error('Failed to send order notification email:', err);
                 });
             }
@@ -193,7 +196,10 @@ app.get('/api/verify-checkout-session', async (req, res) => {
                 const updatedOrder = await db.getOrderBySessionId(session_id);
                 
                 if (!wasPaid) {
-                    emailHelper.sendOrderNotificationEmail(updatedOrder).catch(err => {
+                    const reqHost = req.get('host') || req.headers.host || `localhost:${PORT}`;
+                    const protocol = req.headers['x-forwarded-proto'] || 'http';
+                    const domainUrl = process.env.DOMAIN_URL || `${protocol}://${reqHost}`;
+                    emailHelper.sendOrderNotificationEmail(updatedOrder, domainUrl).catch(err => {
                         console.error('Failed to send order notification email:', err);
                     });
                 }
@@ -500,14 +506,18 @@ app.get('/api/download', async (req, res) => {
 
         // Check if product has custom 3rd-party download link (e.g. Google Drive/Dropbox)
         const products = await db.getProducts();
-        const product = products.find(p => p.name_en === order.itemName || p.name_bg === order.itemName);
+        const cleanItemName = order.itemName.toLowerCase().trim();
+        const product = products.find(p => 
+            p.name_en.toLowerCase().trim() === cleanItemName || 
+            p.name_bg.toLowerCase().trim() === cleanItemName
+        );
         
         if (product && product.digitalDownloadUrl) {
             return res.redirect(product.digitalDownloadUrl);
         }
 
         const fileName = getDigitalFileName(order.itemName);
-        const filePath = path.join(__dirname, 'digital_products', fileName);
+        const filePath = path.join(process.cwd(), 'digital_products', fileName);
 
         if (!fs.existsSync(filePath)) {
             console.error(`Digital asset not found at path: ${filePath}`);
@@ -524,7 +534,7 @@ app.get('/api/download', async (req, res) => {
 
 // Serve frontend routing defaults
 app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+    res.sendFile(path.join(process.cwd(), 'public', 'index.html'));
 });
 
 // Start the server
