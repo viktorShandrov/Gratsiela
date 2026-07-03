@@ -1979,6 +1979,13 @@ I believe that every work of art carries energy, history and message. For me, cr
                     const metaType = currentLanguage === 'bg' ? 'Акрил върху платно' : 'Acrylic on Canvas';
                     const filterStyle = prod.filterClass ? `filter: ${prod.filterClass};` : '';
 
+                    const maxLen = 100;
+                    let displayDesc = desc;
+                    if (desc.length > maxLen) {
+                        const seeMoreText = currentLanguage === 'bg' ? 'виж още' : 'see more';
+                        displayDesc = desc.substring(0, maxLen).trim() + `... <span style="color: var(--accent-gold); font-weight: 500;">${seeMoreText}</span>`;
+                    }
+
                     canvasContainer.innerHTML += `
                         <div class="portfolio-item" onclick="window.location.href='/product.html?id=${prod.id}'">
                             <div class="portfolio-img" style="background-image: url('${prod.image}'); ${filterStyle}"></div>
@@ -1986,7 +1993,7 @@ I believe that every work of art carries energy, history and message. For me, cr
                                 <div>
                                     <h3 class="portfolio-item-title">${name}</h3>
                                     <div class="portfolio-item-meta">${metaType}</div>
-                                    <p class="portfolio-item-desc">${desc}</p>
+                                    <p class="portfolio-item-desc">${displayDesc}</p>
                                 </div>
                                 <div class="portfolio-buy-row" onclick="event.stopPropagation();">
                                     <span class="portfolio-price">${prod.price}</span>
@@ -2008,6 +2015,13 @@ I believe that every work of art carries energy, history and message. For me, cr
                     const metaType = currentLanguage === 'bg' ? 'Дигитален принт' : 'Giclée Fine Art Print';
                     const filterStyle = prod.filterClass ? `filter: ${prod.filterClass};` : '';
 
+                    const maxLen = 100;
+                    let displayDesc = desc;
+                    if (desc.length > maxLen) {
+                        const seeMoreText = currentLanguage === 'bg' ? 'виж още' : 'see more';
+                        displayDesc = desc.substring(0, maxLen).trim() + `... <span style="color: var(--accent-gold); font-weight: 500;">${seeMoreText}</span>`;
+                    }
+
                     printsContainer.innerHTML += `
                         <div class="portfolio-item" onclick="window.location.href='/product.html?id=${prod.id}'">
                             <div class="portfolio-img" style="background-image: url('${prod.image}'); ${filterStyle}"></div>
@@ -2015,7 +2029,7 @@ I believe that every work of art carries energy, history and message. For me, cr
                                 <div>
                                     <h3 class="portfolio-item-title">${name}</h3>
                                     <div class="portfolio-item-meta">${metaType}</div>
-                                    <p class="portfolio-item-desc">${desc}</p>
+                                    <p class="portfolio-item-desc">${displayDesc}</p>
                                 </div>
                                 <div class="portfolio-buy-row" onclick="event.stopPropagation();">
                                     <span class="portfolio-price">${prod.price}</span>

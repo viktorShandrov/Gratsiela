@@ -534,7 +534,10 @@
             <h2>Artist Portal Access</h2>
             <form class="login-form" onsubmit="handleLogin(event)">
                 <input type="password" id="dash-password" placeholder="Enter Access Password" required>
-                <button type="submit" class="btn-action">Unlock Portal</button>
+                <div style="display: flex; gap: 10px; margin-top: 15px; width: 100%;">
+                    <button type="submit" class="btn-action" style="flex: 1; padding: 12px;">Unlock</button>
+                    <button type="button" class="btn-action" style="flex: 1; padding: 12px; background: transparent; border: 1px solid var(--accent-gold); color: var(--accent-gold);" onclick="window.location.href='/'">Go to Site</button>
+                </div>
             </form>
             <div class="login-error" id="login-error-msg">Incorrect access password. Try again.</div>
         </div>
@@ -549,6 +552,7 @@
                 <p>Gratsiela Ivanova | Shop Management</p>
             </div>
             <div class="dash-actions">
+                <button class="btn-action" style="padding: 8px 16px; font-size: 0.75rem; margin-right: 10px; background: transparent; border: 1px solid var(--accent-gold); color: var(--accent-gold);" onclick="window.location.href='/'">← Go to Site</button>
                 <button class="btn-action" style="padding: 8px 16px; font-size: 0.75rem; margin-right: 10px;" onclick="openPasswordModal()">Change Password</button>
                 <button class="btn-logout" onclick="handleLogout()">Log Out</button>
             </div>

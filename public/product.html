@@ -76,12 +76,12 @@
 
         /* --- DESKTOP SIDEBAR NAVIGATION --- */
         .sidebar {
-            width: 260px;
+            width: 180px;
             border-right: 1px solid rgba(234, 221, 203, 0.15);
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            padding: 50px 40px;
+            padding: 50px 15px;
             position: fixed;
             height: 100vh;
             background-color: var(--bg-sidebar);
@@ -93,6 +93,7 @@
             height: 70px;
             cursor: pointer;
             transition: transform 0.4s ease;
+            margin: 0 auto;
         }
         .logo-container:hover {
             transform: scale(1.05);
@@ -111,24 +112,28 @@
         }
 
         .back-nav a {
-            font-size: 0.85rem;
+            font-size: 0.72rem;
             font-weight: 400;
-            letter-spacing: 3px;
+            letter-spacing: 1.5px;
             text-transform: uppercase;
             color: var(--accent-gold);
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
+            justify-content: center;
+            text-align: center;
+            line-height: 1.4;
         }
         .back-nav a:hover {
             color: var(--text-champagne);
-            transform: translateX(-5px);
+            transform: translateX(-3px);
         }
 
         .sidebar-bottom {
             display: flex;
             flex-direction: column;
             gap: 30px;
+            align-items: center;
         }
 
         .lang-switch {
@@ -155,8 +160,8 @@
         /* --- MAIN VIEWPORT --- */
         .main-content {
             flex: 1;
-            margin-left: 260px;
-            padding: 60px 80px;
+            margin-left: 180px;
+            padding: 60px 60px;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
