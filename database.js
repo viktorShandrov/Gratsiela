@@ -279,7 +279,8 @@ async function initDb() {
                 materials_bg VARCHAR(255) DEFAULT '',
                 dimensions VARCHAR(255) DEFAULT '',
                 symbolism_en TEXT DEFAULT '',
-                symbolism_bg TEXT DEFAULT ''
+                symbolism_bg TEXT DEFAULT '',
+                images TEXT DEFAULT '[]'
             )
         `);
 
@@ -290,19 +291,21 @@ async function initDb() {
             ALTER TABLE products ADD COLUMN IF NOT EXISTS dimensions VARCHAR(255) DEFAULT '';
             ALTER TABLE products ADD COLUMN IF NOT EXISTS symbolism_en TEXT DEFAULT '';
             ALTER TABLE products ADD COLUMN IF NOT EXISTS symbolism_bg TEXT DEFAULT '';
+            ALTER TABLE products ADD COLUMN IF NOT EXISTS images TEXT DEFAULT '[]';
         `);
 
         // Seed products using ON CONFLICT to ensure defaults are present without duplicates
         console.log('Ensuring default products are seeded into Postgres...');
         const seedQuery = `
-            INSERT INTO products (id, name_en, name_bg, price, price_cents, type, desc_en, desc_bg, image, filter_class, materials_en, materials_bg, dimensions, symbolism_en, symbolism_bg)
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
+            INSERT INTO products (id, name_en, name_bg, price, price_cents, type, desc_en, desc_bg, image, filter_class, materials_en, materials_bg, dimensions, symbolism_en, symbolism_bg, images)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
             ON CONFLICT (id) DO NOTHING
         `;
         for (const p of DEFAULT_PRODUCTS) {
             await client.query(seedQuery, [
                 p.id, p.name_en, p.name_bg, p.price, p.priceCents, p.type, p.desc_en, p.desc_bg, p.image, p.filterClass || '',
-                p.materials_en || '', p.materials_bg || '', p.dimensions || '', p.symbolism_en || '', p.symbolism_bg || ''
+                p.materials_en || '', p.materials_bg || '', p.dimensions || '', p.symbolism_en || '', p.symbolism_bg || '',
+                JSON.stringify(p.images || [p.image || 'assets/card_artworks.png'])
             ]);
         }
 

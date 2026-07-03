@@ -375,7 +375,7 @@ app.post('/api/products', async (req, res) => {
     }
 
     try {
-        const { name_en, name_bg, price, type, desc_en, desc_bg, image, filterClass } = req.body;
+        const { name_en, name_bg, price, type, desc_en, desc_bg, image, filterClass, images } = req.body;
         if (!name_en || !name_bg || !price || !type) {
             return res.status(400).json({ error: 'Missing required product information' });
         }
@@ -390,7 +390,8 @@ app.post('/api/products', async (req, res) => {
             desc_en,
             desc_bg,
             image,
-            filterClass
+            filterClass,
+            images
         });
 
         res.json({ success: true, product });

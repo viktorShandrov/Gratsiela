@@ -712,13 +712,15 @@
 
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="prod-image">Image File / Path</label>
-                        <input type="text" id="prod-image" placeholder="assets/card_artworks.png">
-                    </div>
-                    <div class="form-group">
                         <label for="prod-filter">CSS Image Filter (Optional)</label>
                         <input type="text" id="prod-filter" placeholder="E.g., hue-rotate(45deg)">
                     </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Images (Carousel / Unlimited Links)</label>
+                    <div id="additional-images-container" style="display: flex; flex-direction: column; gap: 8px;"></div>
+                    <button type="button" class="btn-action" style="margin-top: 8px; font-size: 0.8rem; padding: 6px 12px; background: transparent; border: 1px solid var(--accent-gold); color: var(--text-champagne); width: 200px;" onclick="addImageLinkRow('')">+ Add Image Link</button>
                 </div>
 
                 <button type="submit" class="btn-action" style="margin-top: 15px;" id="prod-btn-submit">Save Product</button>
@@ -951,6 +953,34 @@
         }
 
         // --- PRODUCT CRUD OPERATIONS ---
+        function addImageLinkRow(value = '') {
+            const container = document.getElementById('additional-images-container');
+            const row = document.createElement('div');
+            row.className = 'image-input-row';
+            row.style.display = 'flex';
+            row.style.gap = '8px';
+            row.style.alignItems = 'center';
+            row.innerHTML = `
+                <input type="text" class="additional-image-input" placeholder="assets/detail_image.png" value="${value}" style="flex: 1; padding: 12px; background: var(--bg-sidebar); border: 1px solid rgba(234, 221, 203, 0.2); color: var(--text-champagne);">
+                <button type="button" style="padding: 12px; border: 1px solid var(--accent-pink); background: transparent; color: var(--accent-pink); cursor: pointer; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 1px;" onclick="this.parentElement.remove()">Remove</button>
+            `;
+            container.appendChild(row);
+        }
+
+        function getAdditionalImages() {
+            const inputs = document.querySelectorAll('.additional-image-input');
+            const urls = [];
+            inputs.forEach(input => {
+                const val = input.value.trim();
+                if (val) urls.push(val);
+            });
+            return urls;
+        }
+
+        function clearImageLinkRows() {
+            document.getElementById('additional-images-container').innerHTML = '';
+        }
+
         function openProductModal(prodId = null) {
             const modal = document.getElementById('product-modal');
             const title = document.getElementById('prod-modal-title');
@@ -964,8 +994,8 @@
             document.getElementById('prod-type').value = 'canvas';
             document.getElementById('prod-desc-en').value = '';
             document.getElementById('prod-desc-bg').value = '';
-            document.getElementById('prod-image').value = '';
             document.getElementById('prod-filter').value = '';
+            clearImageLinkRows();
 
             if (prodId) {
                 // Edit State
@@ -981,13 +1011,24 @@
                     document.getElementById('prod-type').value = product.type;
                     document.getElementById('prod-desc-en').value = product.desc_en;
                     document.getElementById('prod-desc-bg').value = product.desc_bg;
-                    document.getElementById('prod-image').value = product.image;
                     document.getElementById('prod-filter').value = product.filterClass || '';
+                    
+                    // Populate images
+                    if (product.images && product.images.length > 0) {
+                        product.images.forEach(img => addImageLinkRow(img));
+                    } else if (product.image) {
+                        addImageLinkRow(product.image);
+                    } else {
+                        addImageLinkRow('');
+                    }
                 }
             } else {
                 // Add State
                 title.innerText = 'Add Product';
                 submitBtn.innerText = 'Save Product';
+                
+                // Add 1 default empty row
+                addImageLinkRow('');
             }
 
             modal.classList.add('active');
@@ -1007,10 +1048,12 @@
             const type = document.getElementById('prod-type').value;
             const desc_en = document.getElementById('prod-desc-en').value;
             const desc_bg = document.getElementById('prod-desc-bg').value;
-            const image = document.getElementById('prod-image').value || 'assets/card_artworks.png';
             const filterClass = document.getElementById('prod-filter').value;
+            
+            const images = getAdditionalImages();
+            const image = images.length > 0 ? images[0] : 'assets/card_artworks.png';
 
-            const payload = { name_en, name_bg, price, type, desc_en, desc_bg, image, filterClass };
+            const payload = { name_en, name_bg, price, type, desc_en, desc_bg, image, filterClass, images };
 
             const isEdit = !!prodId;
             const apiUrl = isEdit ? `/api/products/${prodId}` : '/api/products';

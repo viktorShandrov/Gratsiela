@@ -231,6 +231,35 @@
             transform: scale(1.02);
         }
 
+        .product-thumbnails-container {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+            width: 100%;
+            overflow-x: auto;
+            padding-bottom: 8px;
+            justify-content: flex-start;
+        }
+
+        .product-thumbnail-item {
+            width: 80px;
+            height: 100px;
+            background-size: cover;
+            background-position: center;
+            border: 2px solid rgba(234, 221, 203, 0.15);
+            border-radius: 2px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            opacity: 0.6;
+            flex-shrink: 0;
+        }
+
+        .product-thumbnail-item.active, .product-thumbnail-item:hover {
+            opacity: 1;
+            border-color: var(--accent-gold);
+            box-shadow: 0 4px 10px rgba(197, 160, 89, 0.3);
+        }
+
         .product-info-section {
             display: flex;
             flex-direction: column;
@@ -970,10 +999,29 @@
             const filterStyle = prod.filterClass ? `filter: ${prod.filterClass};` : '';
             const buyText = currentLanguage === 'bg' ? translations.bg["buy-btn"] : translations.en["buy-btn"];
 
+            // Extract all image links, fallback to single image
+            const images = (prod.images && prod.images.length > 0) ? prod.images : [prod.image || 'assets/card_artworks.png'];
+            
+            let thumbnailsHtml = '';
+            if (images.length > 1) {
+                thumbnailsHtml = `<div class="product-thumbnails-container">`;
+                images.forEach((imgUrl, index) => {
+                    const activeClass = index === 0 ? 'active' : '';
+                    thumbnailsHtml += `
+                        <div class="product-thumbnail-item ${activeClass}" 
+                             style="background-image: url('${imgUrl}'); ${filterStyle}"
+                             onclick="changeActiveImage(this, '${imgUrl}')">
+                        </div>
+                    `;
+                });
+                thumbnailsHtml += `</div>`;
+            }
+
             root.innerHTML = `
                 <!-- Image column -->
                 <div class="product-image-section">
-                    <div class="product-image-wrapper" style="background-image: url('${prod.image}'); ${filterStyle}"></div>
+                    <div class="product-image-wrapper" id="main-image-preview" style="background-image: url('${images[0]}'); ${filterStyle}"></div>
+                    ${thumbnailsHtml}
                 </div>
 
                 <!-- Info column -->
@@ -1006,6 +1054,17 @@
                     </div>
                 </div>
             `;
+        }
+
+        function changeActiveImage(element, imageUrl) {
+            const mainPreview = document.getElementById('main-image-preview');
+            if (mainPreview) {
+                mainPreview.style.backgroundImage = `url('${imageUrl}')`;
+            }
+            document.querySelectorAll('.product-thumbnail-item').forEach(thumb => {
+                thumb.classList.remove('active');
+            });
+            element.classList.add('active');
         }
 
         function renderSuggestions(prod) {
