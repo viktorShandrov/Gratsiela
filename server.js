@@ -455,6 +455,81 @@ app.delete('/api/products/:id', async (req, res) => {
     }
 });
 
+// Public endpoint to get all projects
+app.get('/api/projects', async (req, res) => {
+    try {
+        const projects = await db.getProjects();
+        res.json(projects);
+    } catch (err) {
+        res.status(500).json({ error: 'Failed to fetch projects' });
+    }
+});
+
+// Protected endpoint to add a project
+app.post('/api/projects', async (req, res) => {
+    if (!(await isAuthorized(req))) {
+        return res.status(401).json({ error: 'Unauthorized access' });
+    }
+
+    try {
+        const { title_en, title_bg, desc_en, desc_bg, cover_image, images } = req.body;
+        if (!title_en || !title_bg) {
+            return res.status(400).json({ error: 'Missing required project title' });
+        }
+
+        const project = await db.addProject({
+            title_en,
+            title_bg,
+            desc_en,
+            desc_bg,
+            cover_image,
+            images
+        });
+
+        res.json({ success: true, project });
+    } catch (err) {
+        res.status(500).json({ error: 'Failed to create project' });
+    }
+});
+
+// Protected endpoint to update a project
+app.put('/api/projects/:id', async (req, res) => {
+    if (!(await isAuthorized(req))) {
+        return res.status(401).json({ error: 'Unauthorized access' });
+    }
+
+    const projectId = req.params.id;
+    try {
+        const updates = { ...req.body };
+        const project = await db.updateProject(projectId, updates);
+        if (!project) {
+            return res.status(404).json({ error: 'Project not found' });
+        }
+
+        res.json({ success: true, project });
+    } catch (err) {
+        res.status(500).json({ error: 'Failed to update project' });
+    }
+});
+
+// Protected endpoint to delete a project
+app.delete('/api/projects/:id', async (req, res) => {
+    if (!(await isAuthorized(req))) {
+        return res.status(401).json({ error: 'Unauthorized access' });
+    }
+
+    const projectId = req.params.id;
+    try {
+        const success = await db.deleteProject(projectId);
+        if (!success) {
+            return res.status(404).json({ error: 'Project not found' });
+        }
+        res.json({ success: true });
+    } catch (err) {
+        res.status(500).json({ error: 'Failed to delete project' });
+    }
+});
+
 const DIGITAL_FILES_MAP = {
     'digital fluidity i': 'digital_fluidity_1.png',
     'дигитална плавност i': 'digital_fluidity_1.png',

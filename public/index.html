@@ -1280,6 +1280,232 @@
             line-height: 1.6;
         }
 
+        /* --- DESIGN GALLERY & LIGHTBOX MODAL --- */
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .gallery-item {
+            position: relative;
+            aspect-ratio: 4/3;
+            overflow: hidden;
+            cursor: pointer;
+            border: 1px solid rgba(234, 221, 203, 0.15);
+            background-color: rgba(0, 0, 0, 0.2);
+            transition: border-color 0.3s ease, transform 0.3s ease;
+        }
+
+        .gallery-item:hover {
+            border-color: var(--accent-gold);
+            transform: scale(1.02);
+        }
+
+        .gallery-img {
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            transition: transform 0.5s ease;
+        }
+
+        .gallery-item:hover .gallery-img {
+            transform: scale(1.05);
+        }
+
+        /* Project Gallery modal (full page layout overlay like others) */
+        #project-gallery-modal {
+            background-color: var(--bg-dark);
+            z-index: 260; /* Above regular overlays */
+        }
+
+        /* Lightbox overlay modal */
+        .lightbox-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(10, 5, 5, 0.98);
+            z-index: 300; /* On top of everything */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.4s ease;
+            padding: 40px;
+        }
+
+        .lightbox-modal.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .lightbox-close {
+            position: absolute;
+            top: 30px;
+            right: 40px;
+            background: transparent;
+            border: none;
+            color: var(--text-champagne);
+            font-size: 2rem;
+            cursor: pointer;
+            z-index: 310;
+            transition: color 0.3s;
+        }
+
+        .lightbox-close:hover {
+            color: var(--accent-pink);
+        }
+
+        .lightbox-main-view {
+            flex: 1;
+            width: 100%;
+            max-width: 900px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            user-select: none;
+        }
+
+        .lightbox-img {
+            max-width: 100%;
+            max-height: 70vh;
+            object-fit: contain;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+            opacity: 0;
+            transform: scale(0.95);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+
+        .lightbox-img.loaded {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .lightbox-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(234, 221, 203, 0.2);
+            color: var(--text-champagne);
+            font-size: 1.5rem;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            z-index: 325;
+        }
+
+        .lightbox-btn:hover {
+            background: var(--accent-gold);
+            border-color: var(--accent-gold);
+            color: var(--bg-dark);
+        }
+
+        .lightbox-btn-prev {
+            left: -60px;
+        }
+
+        .lightbox-btn-next {
+            right: -60px;
+        }
+
+        /* Scrollable thumbnail container ("rear side" picker) */
+        .lightbox-thumbnail-wrap {
+            width: 100%;
+            max-width: 900px;
+            margin-top: 20px;
+            padding: 10px 0;
+            border-top: 1px solid rgba(234, 221, 203, 0.1);
+        }
+
+        .lightbox-thumbnails {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            scrollbar-width: thin;
+            scrollbar-color: var(--accent-gold) rgba(0, 0, 0, 0.3);
+            padding: 5px 0;
+            scroll-behavior: smooth;
+        }
+
+        .lightbox-thumbnails::-webkit-scrollbar {
+            height: 6px;
+        }
+
+        .lightbox-thumbnails::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        .lightbox-thumbnails::-webkit-scrollbar-thumb {
+            background-color: var(--accent-gold);
+            border-radius: 3px;
+        }
+
+        .lightbox-thumb {
+            width: 70px;
+            height: 52px;
+            flex-shrink: 0;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            cursor: pointer;
+            border: 2px solid transparent;
+            opacity: 0.5;
+            transition: all 0.3s ease;
+        }
+
+        .lightbox-thumb:hover {
+            opacity: 0.8;
+            border-color: rgba(234, 221, 203, 0.4);
+        }
+
+        .lightbox-thumb.active {
+            opacity: 1;
+            border-color: var(--accent-gold);
+            box-shadow: 0 0 10px rgba(212, 175, 55, 0.4);
+        }
+
+        @media (max-width: 768px) {
+            .lightbox-btn {
+                width: 40px;
+                height: 40px;
+                font-size: 1.1rem;
+            }
+            .lightbox-btn-prev {
+                left: 10px;
+            }
+            .lightbox-btn-next {
+                right: 10px;
+            }
+            .lightbox-modal {
+                padding: 20px;
+            }
+            .lightbox-thumbnail-wrap {
+                margin-top: 15px;
+            }
+            .lightbox-thumb {
+                width: 50px;
+                height: 38px;
+            }
+            .lightbox-close {
+                top: 15px;
+                right: 20px;
+            }
+        }
+
         /* --- RESPONSIVE MEDIA QUERIES --- */
         @media (max-width: 1024px) {
             .portfolio-grid {
@@ -1639,38 +1865,8 @@
                 <p class="overlay-subtitle" data-i18n="card-design-desc">beauty in every detail</p>
             </div>
             
-            <p class="design-intro" data-i18n="design-intro">
-                Specializing in luxury brand identities, high-end editorial layouts, monograms, and packaging. I blend organic art textures with modern grid systems to create branding that feels premium, tactile, and unforgettable.
-            </p>
-
-            <div class="portfolio-grid" style="max-width: 1000px; margin: 0 auto;">
-                <!-- Design Project 1 -->
-                <div class="portfolio-item">
-                    <div class="portfolio-img" style="background-image: url('assets/card_design_new.png');"></div>
-                    <div class="portfolio-info">
-                        <h3 class="portfolio-item-title" data-i18n="design-proj1-title">Luxe Studio Identity</h3>
-                        <div class="portfolio-item-meta" data-i18n="design-proj1-meta">Branding & Stationery</div>
-                        <p class="portfolio-item-desc" data-i18n="design-proj1-desc">A gold-foiled identity suite designed for a contemporary art gallery. Emphasizes clean layouts and heavy-textured burgundy paper.</p>
-                    </div>
-                </div>
-                <!-- Design Project 2 -->
-                <div class="portfolio-item">
-                    <div class="portfolio-img" style="background-image: url('assets/card_artworks.png'); filter: saturate(60%) contrast(120%);"></div>
-                    <div class="portfolio-info">
-                        <h3 class="portfolio-item-title" data-i18n="design-proj2-title">Velvet Wine Packaging</h3>
-                        <div class="portfolio-item-meta" data-i18n="design-proj2-meta">Packaging Design</div>
-                        <p class="portfolio-item-desc" data-i18n="design-proj2-desc">A deep bordeaux velvet label featuring custom calligraphy and geometric gold accents for an artisanal winery collection.</p>
-                    </div>
-                </div>
-                <!-- Design Project 3 -->
-                <div class="portfolio-item">
-                    <div class="portfolio-img" style="background-image: url('assets/hero_bg.jpg'); filter: hue-rotate(180deg) brightness(80%);"></div>
-                    <div class="portfolio-info">
-                        <h3 class="portfolio-item-title" data-i18n="design-proj3-title">GI Creative Monograms</h3>
-                        <div class="portfolio-item-meta" data-i18n="design-proj3-meta">Typography & Logo Design</div>
-                        <p class="portfolio-item-desc" data-i18n="design-proj3-desc">A series of bespoke structural monogram designs exploring overlapping letterforms and editorial serif typography.</p>
-                    </div>
-                </div>
+            <div id="design-projects-container" class="portfolio-grid" style="max-width: 1000px; margin: 0 auto;">
+                <!-- Dynamically loaded design projects -->
             </div>
 
 
@@ -1757,6 +1953,36 @@ I believe that every work of art carries energy, history and message. For me, cr
                 </form>
             </div>
         </section>
+
+        <!-- --- 6. DESIGN PROJECT GALLERY OVERLAY --- -->
+        <section id="project-gallery-modal" class="overlay-panel">
+            <button class="close-overlay" onclick="closeProjectGallery()">✕</button>
+            <div class="overlay-header">
+                <h2 class="overlay-title" id="gallery-project-title">Project Title</h2>
+                <p class="overlay-subtitle" id="gallery-project-desc"></p>
+            </div>
+            
+            <div class="gallery-grid" id="project-gallery-grid">
+                <!-- Dynamically populated project images -->
+            </div>
+        </section>
+
+        <!-- --- 7. INTERACTIVE LIGHTBOX OVERLAY --- -->
+        <div id="gallery-lightbox-modal" class="lightbox-modal">
+            <button class="lightbox-close" onclick="closeLightbox()">✕</button>
+            
+            <div class="lightbox-main-view">
+                <button class="lightbox-btn lightbox-btn-prev" onclick="navigateLightbox(-1)">◀</button>
+                <img id="lightbox-main-img" class="lightbox-img" src="" alt="Active View">
+                <button class="lightbox-btn lightbox-btn-next" onclick="navigateLightbox(1)">▶</button>
+            </div>
+            
+            <div class="lightbox-thumbnail-wrap">
+                <div class="lightbox-thumbnails" id="lightbox-thumbnails-container">
+                    <!-- Dynamic horizontal thumbnails scroll -->
+                </div>
+            </div>
+        </div>
 
         <!-- --- SIMULATED CHECKOUT MODAL --- -->
         <div class="modal" id="checkout-modal">
@@ -1992,6 +2218,7 @@ I believe that every work of art carries energy, history and message. For me, cr
 
             // Re-render Products in correct language
             renderProducts();
+            renderProjects();
         }
 
         // --- DYNAMIC PRODUCTS RENDER ---
@@ -2125,6 +2352,187 @@ I believe that every work of art carries energy, history and message. For me, cr
                 }
             }
         }
+
+        // --- DYNAMIC PROJECTS RENDER & LIGHTBOX ---
+        let allProjects = [];
+        let activeProject = null;
+        let activeImageIndex = 0;
+
+        function loadProjects() {
+            fetch('/api/projects')
+                .then(res => res.json())
+                .then(projects => {
+                    allProjects = projects;
+                    renderProjects();
+                })
+                .catch(err => console.error('Error fetching dynamic projects:', err));
+        }
+
+        function renderProjects() {
+            const container = document.getElementById('design-projects-container');
+            if (!container) return;
+            container.innerHTML = '';
+
+            if (allProjects.length === 0) {
+                container.innerHTML = `<div style="grid-column: 1/-1; text-align: center; color: rgba(234, 221, 203, 0.4); padding: 40px 0;">${currentLanguage === 'bg' ? 'Няма намерени проекти.' : 'No design projects found.'}</div>`;
+                return;
+            }
+
+            allProjects.forEach(proj => {
+                const title = currentLanguage === 'bg' ? proj.title_bg : proj.title_en;
+                const desc = currentLanguage === 'bg' ? proj.desc_bg : proj.desc_en;
+                
+                const item = document.createElement('div');
+                item.className = 'portfolio-item';
+                item.onclick = () => openProjectGallery(proj.id);
+                item.innerHTML = `
+                    <div class="portfolio-img" style="background-image: url('${proj.cover_image}'); cursor: pointer;"></div>
+                    <div class="portfolio-info">
+                        <h3 class="portfolio-item-title">${title}</h3>
+                        <p class="portfolio-item-desc">${desc}</p>
+                    </div>
+                `;
+                container.appendChild(item);
+            });
+        }
+
+        function openProjectGallery(projId) {
+            const proj = allProjects.find(p => p.id === projId);
+            if (!proj) return;
+
+            activeProject = proj;
+            
+            const titleEl = document.getElementById('gallery-project-title');
+            const descEl = document.getElementById('gallery-project-desc');
+            const gridEl = document.getElementById('project-gallery-grid');
+
+            titleEl.innerText = currentLanguage === 'bg' ? proj.title_bg : proj.title_en;
+            descEl.innerText = currentLanguage === 'bg' ? proj.desc_bg : proj.desc_en;
+            gridEl.innerHTML = '';
+
+            const galleryImages = proj.images && proj.images.length > 0 ? proj.images : [proj.cover_image];
+
+            galleryImages.forEach((imgUrl, index) => {
+                const item = document.createElement('div');
+                item.className = 'gallery-item';
+                item.onclick = () => openLightbox(index);
+                item.innerHTML = `
+                    <div class="gallery-img" style="background-image: url('${imgUrl}')"></div>
+                `;
+                gridEl.appendChild(item);
+            });
+
+            document.getElementById('project-gallery-modal').classList.add('active');
+            document.body.classList.add('no-scroll');
+        }
+
+        function closeProjectGallery() {
+            document.getElementById('project-gallery-modal').classList.remove('active');
+            if (currentOverlayId !== 'design') {
+                document.body.classList.remove('no-scroll');
+            }
+        }
+
+        function openLightbox(index) {
+            if (!activeProject) return;
+            activeImageIndex = index;
+            
+            const galleryImages = activeProject.images && activeProject.images.length > 0 ? activeProject.images : [activeProject.cover_image];
+            
+            const lightbox = document.getElementById('gallery-lightbox-modal');
+            const mainImg = document.getElementById('lightbox-main-img');
+            const thumbnailsContainer = document.getElementById('lightbox-thumbnails-container');
+
+            thumbnailsContainer.innerHTML = '';
+
+            // Load main image with animation
+            mainImg.classList.remove('loaded');
+            mainImg.src = galleryImages[activeImageIndex];
+            mainImg.onload = () => {
+                mainImg.classList.add('loaded');
+            };
+
+            // Render thumbnails underneath
+            galleryImages.forEach((imgUrl, idx) => {
+                const thumb = document.createElement('div');
+                thumb.className = `lightbox-thumb ${idx === activeImageIndex ? 'active' : ''}`;
+                thumb.style.backgroundImage = `url('${imgUrl}')`;
+                thumb.onclick = () => selectLightboxImage(idx);
+                thumbnailsContainer.appendChild(thumb);
+
+                // Auto scroll active thumbnail into view
+                if (idx === activeImageIndex) {
+                    setTimeout(() => {
+                        thumb.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+                    }, 50);
+                }
+            });
+
+            lightbox.classList.add('active');
+        }
+
+        function closeLightbox() {
+            document.getElementById('gallery-lightbox-modal').classList.remove('active');
+        }
+
+        function selectLightboxImage(index) {
+            activeImageIndex = index;
+            const galleryImages = activeProject.images && activeProject.images.length > 0 ? activeProject.images : [activeProject.cover_image];
+            
+            const mainImg = document.getElementById('lightbox-main-img');
+            mainImg.classList.remove('loaded');
+            mainImg.src = galleryImages[activeImageIndex];
+            mainImg.onload = () => {
+                mainImg.classList.add('loaded');
+            };
+
+            // Update active state on thumbnails
+            const thumbs = document.querySelectorAll('.lightbox-thumb');
+            thumbs.forEach((thumb, idx) => {
+                if (idx === activeImageIndex) {
+                    thumb.classList.add('active');
+                    thumb.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+                } else {
+                    thumb.classList.remove('active');
+                }
+            });
+        }
+
+        function navigateLightbox(direction) {
+            if (!activeProject) return;
+            const galleryImages = activeProject.images && activeProject.images.length > 0 ? activeProject.images : [activeProject.cover_image];
+            
+            let newIndex = activeImageIndex + direction;
+            if (newIndex < 0) {
+                newIndex = galleryImages.length - 1;
+            } else if (newIndex >= galleryImages.length) {
+                newIndex = 0;
+            }
+            
+            selectLightboxImage(newIndex);
+        }
+
+        // Close lightbox on Escape key & arrow keys
+        window.addEventListener('keydown', (e) => {
+            const lightbox = document.getElementById('gallery-lightbox-modal');
+            const gallery = document.getElementById('project-gallery-modal');
+            
+            if (e.key === 'Escape') {
+                if (lightbox && lightbox.classList.contains('active')) {
+                    closeLightbox();
+                } else if (gallery && gallery.classList.contains('active')) {
+                    closeProjectGallery();
+                }
+            } else if (e.key === 'ArrowRight') {
+                if (lightbox && lightbox.classList.contains('active')) {
+                    navigateLightbox(1);
+                }
+            } else if (e.key === 'ArrowLeft') {
+                if (lightbox && lightbox.classList.contains('active')) {
+                    navigateLightbox(-1);
+                }
+            }
+        });
 
         // Store currently open overlay ID
         let currentOverlayId = null;
@@ -2387,6 +2795,7 @@ I believe that every work of art carries energy, history and message. For me, cr
         window.addEventListener('DOMContentLoaded', () => {
             setLanguage(currentLanguage);
             loadProducts();
+            loadProjects();
         });
     </script>
 </body>

@@ -582,6 +582,7 @@
         <div class="dash-tabs">
             <button class="tab-btn active" onclick="switchTab('orders')" id="tab-btn-orders">Orders Log</button>
             <button class="tab-btn" onclick="switchTab('products')" id="tab-btn-products">Product Inventory</button>
+            <button class="tab-btn" onclick="switchTab('projects')" id="tab-btn-projects">Design Projects</button>
         </div>
 
         <!-- TAB SECTION 1: ORDERS LOG -->
@@ -637,6 +638,35 @@
                         <tr>
                             <td colspan="7" style="text-align: center; padding: 40px; color: rgba(234, 221, 203, 0.4);">
                                 Loading products...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- TAB SECTION 3: DESIGN PROJECTS -->
+        <section class="dash-section" id="sec-projects">
+            <div class="section-header-row">
+                <h2 class="section-title">Design Projects</h2>
+                <button class="btn-action" style="padding: 10px 20px; font-size: 0.75rem;" onclick="openProjectModal()">+ Add Project</button>
+            </div>
+            
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Cover Image</th>
+                            <th>Project Title (EN / BG)</th>
+                            <th>Description (EN / BG)</th>
+                            <th>Gallery Images Count</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="projects-table-body">
+                        <tr>
+                            <td colspan="5" style="text-align: center; padding: 40px; color: rgba(234, 221, 203, 0.4);">
+                                Loading projects...
                             </td>
                         </tr>
                     </tbody>
@@ -755,10 +785,59 @@
         </div>
     </div>
 
+    <!-- --- DESIGN PROJECT CRUD MODAL POPUP --- -->
+    <div class="modal" id="project-modal">
+        <div class="modal-content">
+            <button class="close-modal" onclick="closeProjectModal()">✕</button>
+            <h3 class="modal-title" id="proj-modal-title">Add Design Project</h3>
+            
+            <form onsubmit="handleProjectSubmit(event)" class="crud-form">
+                <!-- Hidden Project ID for edit state -->
+                <input type="hidden" id="proj-id">
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="proj-title-en">Title (English)</label>
+                        <input type="text" id="proj-title-en" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="proj-title-bg">Title (Bulgarian)</label>
+                        <input type="text" id="proj-title-bg" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="proj-desc-en">Description (English)</label>
+                    <textarea id="proj-desc-en" rows="3" required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="proj-desc-bg">Description (Bulgarian)</label>
+                    <textarea id="proj-desc-bg" rows="3" required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="proj-cover-image">Cover Image URL (E.g., /assets/project_image_1.jpg)</label>
+                    <input type="text" id="proj-cover-image" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Gallery Images (Unlimited Links)</label>
+                    <div id="project-images-container" style="display: flex; flex-direction: column; gap: 8px;"></div>
+                    <button type="button" class="btn-action" style="margin-top: 8px; font-size: 0.8rem; padding: 6px 12px; background: transparent; border: 1px solid var(--accent-gold); color: var(--text-champagne); width: 200px;" onclick="addProjectImageLinkRow('')">+ Add Image Link</button>
+                </div>
+
+                <button type="submit" class="btn-action" style="margin-top: 15px;" id="proj-btn-submit">Save Project</button>
+            </form>
+        </div>
+    </div>
+
     <!-- --- JAVASCRIPT LOGIC --- -->
     <script>
         // Check local token
         let token = localStorage.getItem('artist_token');
+        let currentProducts = [];
+        let currentProjects = [];
         if (token) {
             document.getElementById('login-overlay').style.display = 'none';
             document.getElementById('dashboard-container').style.display = 'block';
@@ -814,8 +893,10 @@
 
             if (tabName === 'orders') {
                 loadDashboardData(token);
-            } else {
+            } else if (tabName === 'products') {
                 loadInventoryData();
+            } else if (tabName === 'projects') {
+                loadProjectsData();
             }
         }
 
@@ -1139,6 +1220,193 @@
             .catch(err => {
                 console.error(err);
                 alert('Failed to delete product.');
+            });
+        }
+
+        // --- DESIGN PROJECT CRUD OPERATIONS ---
+        function loadProjectsData() {
+            fetch('/api/projects')
+                .then(res => res.json())
+                .then(projects => {
+                    currentProjects = projects;
+                    const tbody = document.getElementById('projects-table-body');
+                    tbody.innerHTML = '';
+
+                    if (projects.length === 0) {
+                        tbody.innerHTML = `
+                            <tr>
+                                <td colspan="5" style="text-align: center; padding: 40px; color: rgba(234, 221, 203, 0.4);">
+                                    No design projects registered in the database.
+                                </td>
+                            </tr>
+                        `;
+                        return;
+                    }
+
+                    projects.forEach(proj => {
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `
+                            <td>
+                                <div class="product-img-cell" style="background-image: url('${proj.cover_image}')"></div>
+                            </td>
+                            <td>
+                                <div style="font-weight:600;">${proj.title_en}</div>
+                                <div style="color: rgba(234,221,203,0.5); font-size:0.75rem; margin-top:2px;">${proj.title_bg}</div>
+                                <div style="font-size:0.65rem; color: var(--accent-gold); font-family:monospace; margin-top:4px;">ID: ${proj.id}</div>
+                            </td>
+                            <td style="max-width: 200px; color: rgba(234,221,203,0.7); font-size:0.8rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${proj.desc_en}</td>
+                            <td style="max-width: 200px; color: rgba(234,221,203,0.7); font-size:0.8rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${proj.desc_bg}</td>
+                            <td style="font-weight: 600; color: var(--accent-gold);">${proj.images ? proj.images.length : 0} images</td>
+                            <td>
+                                <button class="btn-table-action" onclick="openProjectModal('${proj.id}')">Edit</button>
+                                <button class="btn-table-action btn-table-delete" onclick="deleteProject('${proj.id}')">Delete</button>
+                            </td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+                })
+                .catch(err => console.error('Error fetching projects list:', err));
+        }
+
+        function addProjectImageLinkRow(value = '') {
+            const container = document.getElementById('project-images-container');
+            const row = document.createElement('div');
+            row.className = 'project-image-input-row';
+            row.style.display = 'flex';
+            row.style.gap = '8px';
+            row.style.alignItems = 'center';
+            row.innerHTML = `
+                <input type="text" class="project-additional-image-input" placeholder="assets/project_image_detail.png" value="${value}" style="flex: 1; padding: 12px; background: var(--bg-sidebar); border: 1px solid rgba(234, 221, 203, 0.2); color: var(--text-champagne);">
+                <button type="button" style="padding: 12px; border: 1px solid var(--accent-pink); background: transparent; color: var(--accent-pink); cursor: pointer; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 1px;" onclick="this.parentElement.remove()">Remove</button>
+            `;
+            container.appendChild(row);
+        }
+
+        function getProjectAdditionalImages() {
+            const inputs = document.querySelectorAll('.project-additional-image-input');
+            const urls = [];
+            inputs.forEach(input => {
+                const val = input.value.trim();
+                if (val) urls.push(val);
+            });
+            return urls;
+        }
+
+        function clearProjectImageLinkRows() {
+            document.getElementById('project-images-container').innerHTML = '';
+        }
+
+        function openProjectModal(projId = null) {
+            const modal = document.getElementById('project-modal');
+            const title = document.getElementById('proj-modal-title');
+            const submitBtn = document.getElementById('proj-btn-submit');
+            
+            // Clear inputs
+            document.getElementById('proj-id').value = '';
+            document.getElementById('proj-title-en').value = '';
+            document.getElementById('proj-title-bg').value = '';
+            document.getElementById('proj-desc-en').value = '';
+            document.getElementById('proj-desc-bg').value = '';
+            document.getElementById('proj-cover-image').value = '';
+            clearProjectImageLinkRows();
+
+            if (projId) {
+                // Edit State
+                title.innerText = 'Edit Design Project';
+                submitBtn.innerText = 'Update Project';
+                
+                const proj = currentProjects.find(p => p.id === projId);
+                if (proj) {
+                    document.getElementById('proj-id').value = proj.id;
+                    document.getElementById('proj-title-en').value = proj.title_en;
+                    document.getElementById('proj-title-bg').value = proj.title_bg;
+                    document.getElementById('proj-desc-en').value = proj.desc_en;
+                    document.getElementById('proj-desc-bg').value = proj.desc_bg;
+                    document.getElementById('proj-cover-image').value = proj.cover_image;
+                    
+                    // Populate images
+                    if (proj.images && proj.images.length > 0) {
+                        proj.images.forEach(img => addProjectImageLinkRow(img));
+                    } else if (proj.cover_image) {
+                        addProjectImageLinkRow(proj.cover_image);
+                    } else {
+                        addProjectImageLinkRow('');
+                    }
+                }
+            } else {
+                // Add State
+                title.innerText = 'Add Design Project';
+                submitBtn.innerText = 'Save Project';
+                
+                // Add 1 default empty row
+                addProjectImageLinkRow('');
+            }
+
+            modal.classList.add('active');
+        }
+
+        function closeProjectModal() {
+            document.getElementById('project-modal').classList.remove('active');
+        }
+
+        function handleProjectSubmit(event) {
+            event.preventDefault();
+            
+            const projId = document.getElementById('proj-id').value;
+            const title_en = document.getElementById('proj-title-en').value;
+            const title_bg = document.getElementById('proj-title-bg').value;
+            const desc_en = document.getElementById('proj-desc-en').value;
+            const desc_bg = document.getElementById('proj-desc-bg').value;
+            const cover_image = document.getElementById('proj-cover-image').value;
+            const images = getProjectAdditionalImages();
+
+            const payload = { title_en, title_bg, desc_en, desc_bg, cover_image, images };
+
+            const isEdit = !!projId;
+            const apiUrl = isEdit ? `/api/projects/${projId}` : '/api/projects';
+            const apiMethod = isEdit ? 'PUT' : 'POST';
+
+            fetch(apiUrl, {
+                method: apiMethod,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify(payload)
+            })
+            .then(res => {
+                if (!res.ok) throw new Error('API Request failed');
+                return res.json();
+            })
+            .then(data => {
+                closeProjectModal();
+                loadProjectsData();
+            })
+            .catch(err => {
+                console.error(err);
+                alert('Failed to save project details. Check permissions.');
+            });
+        }
+
+        function deleteProject(projId) {
+            if (!confirm('Are you sure you want to delete this project?')) return;
+
+            fetch(`/api/projects/${projId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            })
+            .then(res => {
+                if (!res.ok) throw new Error('Deletion failed');
+                return res.json();
+            })
+            .then(data => {
+                loadProjectsData();
+            })
+            .catch(err => {
+                console.error(err);
+                alert('Failed to delete project.');
             });
         }
 

@@ -213,6 +213,63 @@ const DEFAULT_PRODUCTS = [
     }
 ];
 
+const DEFAULT_PROJECTS = [
+    {
+        id: 'proj_1',
+        title_en: "Luxe Gallery & Framing",
+        title_bg: "Луксозна галерия и рамкиране",
+        desc_en: "A beautiful space combining premium interior layouts with high-end artwork presentation.",
+        desc_bg: "Красиво пространство, съчетаващо първокласни интериорни разпределения с висококачествено представяне на произведения на изкуството.",
+        cover_image: "/assets/project_image_1.jpg",
+        images: ["/assets/project_image_1.jpg", "/assets/project_image_3.jpg", "/assets/project_image_5.jpg"]
+    },
+    {
+        id: 'proj_2',
+        title_en: "Neon Art Lounge",
+        title_bg: "Неоново арт фоайе",
+        desc_en: "Modern wooden interior accentuating custom female neon signs and sleek lighting.",
+        desc_bg: "Модерен дървен интериор, подчертаващ персонализирани женски неонови надписи и елегантно осветление.",
+        cover_image: "/assets/project_image_2.jpg",
+        images: ["/assets/project_image_2.jpg", "/assets/project_image_6.jpg"]
+    },
+    {
+        id: 'proj_3',
+        title_en: "Organic Wood Reception",
+        title_bg: "Органична дървена рецепция",
+        desc_en: "TACTILE texture blends with natural flowers and premium wooden paneling.",
+        desc_bg: "ТАКТИЛНИ текстури се смесват с естествени цветя и първокласна дървена ламперия.",
+        cover_image: "/assets/project_image_3.jpg",
+        images: ["/assets/project_image_3.jpg", "/assets/project_image_1.jpg"]
+    },
+    {
+        id: 'proj_4',
+        title_en: "Lighted Mirror Station",
+        title_bg: "Осветена грим станция",
+        desc_en: "Bespoke beauty workspace with warm circle vanity lighting and wood columns.",
+        desc_bg: "Поръчково работно пространство за красота с топло кръгло осветление на тоалетка и дървени колони.",
+        cover_image: "/assets/project_image_4.jpg",
+        images: ["/assets/project_image_4.jpg", "/assets/project_image_5.jpg"]
+    },
+    {
+        id: 'proj_5',
+        title_en: "Modern Waiting Lounge",
+        title_bg: "Модерно фоайе за изчакване",
+        desc_en: "Relaxing visitor layout with custom bar elements, clean styling and marble tiles.",
+        desc_bg: "Релаксиращо оформление за посетители с поръчкови бар елементи, чист стил и мраморни плочки.",
+        cover_image: "/assets/project_image_5.jpg",
+        images: ["/assets/project_image_5.jpg", "/assets/project_image_3.jpg"]
+    },
+    {
+        id: 'proj_6',
+        title_en: "Beauty Studio Entrance",
+        title_bg: "Вход на студио за красота",
+        desc_en: "Festive balloon arches welcoming guests into a high-end luxury beauty studio.",
+        desc_bg: "Празнични арки от балони, приветстващи гостите в луксозно студио за красота от висок клас.",
+        cover_image: "/assets/project_image_6.jpg",
+        images: ["/assets/project_image_6.jpg", "/assets/project_image_2.jpg"]
+    }
+];
+
 // Initialize Postgres connection pool
 let pool;
 let isInitialized = false;
@@ -304,6 +361,19 @@ async function initDb() {
             )
         `);
 
+        // Projects table
+        await client.query(`
+            CREATE TABLE IF NOT EXISTS projects (
+                id VARCHAR(255) PRIMARY KEY,
+                title_en VARCHAR(255) NOT NULL,
+                title_bg VARCHAR(255) NOT NULL,
+                desc_en TEXT,
+                desc_bg TEXT,
+                cover_image VARCHAR(255) NOT NULL,
+                images TEXT DEFAULT '[]'
+            )
+        `);
+
         // Check if default products have already been seeded once
         const seedCheckRes = await client.query("SELECT count(*) FROM settings WHERE key = 'default_products_seeded'");
         const seedCheckCount = parseInt(seedCheckRes.rows[0].count, 10);
@@ -326,6 +396,24 @@ async function initDb() {
             await client.query("INSERT INTO settings (key, value) VALUES ('default_products_seeded', 'true')");
         } else {
             console.log('Default products already seeded once. Skipping seeding to respect admin deletions.');
+        }
+
+        // Seed default projects if not exists
+        const projSeedCheckRes = await client.query("SELECT count(*) FROM settings WHERE key = 'default_projects_seeded'");
+        const projSeedCheckCount = parseInt(projSeedCheckRes.rows[0].count, 10);
+        if (projSeedCheckCount === 0) {
+            console.log('Seeding default projects into Postgres...');
+            const projSeedQuery = `
+                INSERT INTO projects (id, title_en, title_bg, desc_en, desc_bg, cover_image, images)
+                VALUES ($1, $2, $3, $4, $5, $6, $7)
+                ON CONFLICT (id) DO NOTHING
+            `;
+            for (const p of DEFAULT_PROJECTS) {
+                await client.query(projSeedQuery, [
+                    p.id, p.title_en, p.title_bg, p.desc_en, p.desc_bg, p.cover_image, JSON.stringify(p.images)
+                ]);
+            }
+            await client.query("INSERT INTO settings (key, value) VALUES ('default_projects_seeded', 'true')");
         }
 
         // Seed default password if not exists
@@ -369,6 +457,10 @@ function readDb() {
         
         if (!parsed.products) {
             parsed.products = DEFAULT_PRODUCTS;
+            changed = true;
+        }
+        if (!parsed.projects) {
+            parsed.projects = DEFAULT_PROJECTS;
             changed = true;
         }
         if (!parsed.settings || !parsed.settings.dashboard_password) {
@@ -958,7 +1050,164 @@ async function verifyDashboardPassword(inputPassword) {
     return verifyPassword(inputPassword, hashed);
 }
 
+async function getProjects() {
+    if (usePostgres) {
+        await checkInit();
+        try {
+            const res = await pool.query('SELECT * FROM projects');
+            return res.rows.map(row => {
+                let parsedImages = [];
+                try {
+                    parsedImages = JSON.parse(row.images || '[]');
+                } catch(e) {
+                    parsedImages = [];
+                }
+                return {
+                    id: row.id,
+                    title_en: row.title_en,
+                    title_bg: row.title_bg,
+                    desc_en: row.desc_en,
+                    desc_bg: row.desc_bg,
+                    cover_image: row.cover_image,
+                    images: parsedImages
+                };
+            });
+        } catch (err) {
+            console.error('Error fetching projects from Postgres:', err);
+            return [];
+        }
+    } else {
+        const db = readDb();
+        return db.projects || [];
+    }
+}
+
+async function addProject(projectData) {
+    const newProject = {
+        id: 'proj_' + Date.now() + Math.random().toString(36).substr(2, 4),
+        title_en: projectData.title_en,
+        title_bg: projectData.title_bg,
+        desc_en: projectData.desc_en || '',
+        desc_bg: projectData.desc_bg || '',
+        cover_image: projectData.cover_image || '/assets/project_image_1.jpg',
+        images: projectData.images || []
+    };
+
+    if (usePostgres) {
+        await checkInit();
+        try {
+            const query = `
+                INSERT INTO projects (id, title_en, title_bg, desc_en, desc_bg, cover_image, images)
+                VALUES ($1, $2, $3, $4, $5, $6, $7)
+            `;
+            await pool.query(query, [
+                newProject.id, newProject.title_en, newProject.title_bg, newProject.desc_en, newProject.desc_bg,
+                newProject.cover_image, JSON.stringify(newProject.images)
+            ]);
+            return newProject;
+        } catch (err) {
+            console.error('Error saving project to Postgres:', err);
+            throw err;
+        }
+    } else {
+        const db = readDb();
+        db.projects = db.projects || [];
+        db.projects.push(newProject);
+        writeDb(db);
+        return newProject;
+    }
+}
+
+async function updateProject(projectId, updates) {
+    if (usePostgres) {
+        await checkInit();
+        try {
+            const keys = [];
+            const values = [];
+            let i = 1;
+
+            if (updates.title_en !== undefined) { keys.push(`title_en = $${i++}`); values.push(updates.title_en); }
+            if (updates.title_bg !== undefined) { keys.push(`title_bg = $${i++}`); values.push(updates.title_bg); }
+            if (updates.desc_en !== undefined) { keys.push(`desc_en = $${i++}`); values.push(updates.desc_en); }
+            if (updates.desc_bg !== undefined) { keys.push(`desc_bg = $${i++}`); values.push(updates.desc_bg); }
+            if (updates.cover_image !== undefined) { keys.push(`cover_image = $${i++}`); values.push(updates.cover_image); }
+            if (updates.images !== undefined) { keys.push(`images = $${i++}`); values.push(JSON.stringify(updates.images)); }
+
+            if (keys.length === 0) return null;
+
+            values.push(projectId);
+            const query = `
+                UPDATE projects 
+                SET ${keys.join(', ')} 
+                WHERE id = $${i}
+                RETURNING *
+            `;
+            const res = await pool.query(query, values);
+            if (res.rows.length === 0) return null;
+            const row = res.rows[0];
+
+            let parsedImages = [];
+            try {
+                parsedImages = JSON.parse(row.images || '[]');
+            } catch(e) {
+                parsedImages = [];
+            }
+
+            return {
+                id: row.id,
+                title_en: row.title_en,
+                title_bg: row.title_bg,
+                desc_en: row.desc_en,
+                desc_bg: row.desc_bg,
+                cover_image: row.cover_image,
+                images: parsedImages
+            };
+        } catch (err) {
+            console.error('Error updating project in Postgres:', err);
+            return null;
+        }
+    } else {
+        const db = readDb();
+        db.projects = db.projects || [];
+        const projIndex = db.projects.findIndex(p => p.id === projectId);
+        if (projIndex === -1) return null;
+
+        db.projects[projIndex] = {
+            ...db.projects[projIndex],
+            ...updates
+        };
+        writeDb(db);
+        return db.projects[projIndex];
+    }
+}
+
+async function deleteProject(projectId) {
+    if (usePostgres) {
+        await checkInit();
+        try {
+            const res = await pool.query('DELETE FROM projects WHERE id = $1', [projectId]);
+            return res.rowCount > 0;
+        } catch (err) {
+            console.error('Error deleting project from Postgres:', err);
+            return false;
+        }
+    } else {
+        const db = readDb();
+        db.projects = db.projects || [];
+        const projIndex = db.projects.findIndex(p => p.id === projectId);
+        if (projIndex === -1) return false;
+
+        db.projects.splice(projIndex, 1);
+        writeDb(db);
+        return true;
+    }
+}
+
 module.exports = {
+    getProjects,
+    addProject,
+    updateProject,
+    deleteProject,
     getOrders,
     addOrder,
     updateOrder,
