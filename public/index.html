@@ -980,6 +980,40 @@
             color: var(--bg-dark);
         }
 
+        /* Relocated Instagram Banner styling in About section */
+        .about-details .instagram-banner {
+            background-color: rgba(234, 221, 203, 0.02);
+            border: 1px solid rgba(234, 221, 203, 0.08);
+            padding: 25px;
+            text-align: left;
+            margin: 30px 0 0 0;
+            max-width: 100%;
+            border-radius: 4px;
+        }
+
+        .about-details .instagram-banner h3 {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+            letter-spacing: 1.5px;
+        }
+
+        .about-details .instagram-banner p {
+            font-size: 0.85rem;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        .about-details .instagram-links {
+            justify-content: flex-start;
+            gap: 15px;
+        }
+
+        .about-details .insta-btn {
+            padding: 10px 20px;
+            font-size: 0.75rem;
+            letter-spacing: 1.5px;
+        }
+
         /* 4. About Section Split Layout */
         .about-layout {
             display: grid;
@@ -1466,7 +1500,7 @@
                 <!-- Artworks Card -->
                 <div class="category-item cat-artworks" onclick="openOverlay('artworks')">
                     <div class="card-bg-wrap">
-                        <div class="card-bg" style="background-image: url('assets/card_artworks.png');"></div>
+                        <div class="card-bg" style="background-image: url('assets/navigation_artworks.jpg');"></div>
                     </div>
                     <div class="card-content">
                         <h4 class="card-title" data-i18n="card-artworks-title">Artworks</h4>
@@ -1477,7 +1511,7 @@
                 <!-- Books Card -->
                 <div class="category-item cat-books" onclick="openOverlay('books')">
                     <div class="card-bg-wrap">
-                        <div class="card-bg" style="background-image: url('assets/card_books.png');"></div>
+                        <div class="card-bg" style="background-image: url('assets/navigation_books.jpg');"></div>
                     </div>
                     <div class="card-content">
                         <h4 class="card-title" data-i18n="card-books-title">Books</h4>
@@ -1626,19 +1660,7 @@
                 </div>
             </div>
 
-            <!-- Instagram Redirect Banner -->
-            <div class="instagram-banner">
-                <h3 data-i18n="insta-banner-title">Follow My Processes</h3>
-                <p data-i18n="insta-banner-desc">I post regular behind-the-scenes sketches, color curation grids, and design updates across two dedicated Instagram profiles.</p>
-                <div class="instagram-links">
-                    <a href="https://www.instagram.com/gratsielaivanova_artist_artue/" target="_blank" class="insta-btn" data-i18n="insta-btn-art">
-                        <span>📷</span> Art & Canvas Feed
-                    </a>
-                    <a href="https://www.instagram.com/gratsielaivanova_designstudio/" target="_blank" class="insta-btn" data-i18n="insta-btn-design">
-                        <span>✏️</span> Branding & Design Feed
-                    </a>
-                </div>
-            </div>
+
         </section>
 
         <!-- --- 4. ABOUT PORTFOLIO OVERLAY --- -->
@@ -1670,6 +1692,21 @@ I believe that every work of art carries energy, history and message. For me, cr
                             Whether I am layering heavy body acrylics on canvas, binding a new art guide, or constructing a monogram, my goal remains constant: to design beautiful, premium experiences that resonate deeply. <em>"Where art speaks beyond words."</em>
                         </p>
                     </div>
+                    
+                    <!-- Instagram Redirect Banner -->
+                    <div class="instagram-banner">
+                        <h3 data-i18n="insta-banner-title">Follow My Processes</h3>
+                        <p data-i18n="insta-banner-desc">I post regular behind-the-scenes sketches, color curation grids, and design updates across two dedicated Instagram profiles.</p>
+                        <div class="instagram-links">
+                            <a href="https://www.instagram.com/gratsielaivanova_artist_artue/" target="_blank" class="insta-btn" data-i18n="insta-btn-art">
+                                <span>📷</span> Art & Canvas Feed
+                            </a>
+                            <a href="https://www.instagram.com/gratsielaivanova_designstudio/" target="_blank" class="insta-btn" data-i18n="insta-btn-design">
+                                <span>✏️</span> Branding & Design Feed
+                            </a>
+                        </div>
+                    </div>
+
                     <div style="margin-top: 25px; border-top: 1px solid rgba(234, 221, 203, 0.15); padding-top: 15px; text-align: left;">
                         <a href="/dashboard.html" target="_blank" style="font-size: 0.75rem; opacity: 0.4; text-decoration: none; color: inherit; letter-spacing: 1.5px; text-transform: uppercase;">Portal Access</a>
                     </div>
