@@ -656,6 +656,20 @@ app.get('/api/download', async (req, res) => {
     }
 });
 
+// Temporary endpoint to reset Postgres password online
+app.get('/api/temp-reset-password', async (req, res) => {
+    try {
+        const success = await db.updateDashboardPassword('work');
+        if (success) {
+            res.send('Successfully reset Vercel Postgres dashboard password to "work". Please log in and change it immediately, then let your assistant know to remove this route.');
+        } else {
+            res.status(500).send('Failed to reset dashboard password in Postgres database.');
+        }
+    } catch (err) {
+        res.status(500).send('Error resetting password: ' + err.message);
+    }
+});
+
 // Serve frontend routing defaults
 app.get('*', (req, res) => {
     res.sendFile(path.join(process.cwd(), 'public', 'index.html'));
