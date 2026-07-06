@@ -1280,6 +1280,106 @@
             line-height: 1.6;
         }
 
+        /* --- DESIGN PROJECTS ROW LAYOUT & QUOTES --- */
+        .project-row {
+            display: flex;
+            flex-direction: row;
+            align-items: stretch;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(234, 221, 203, 0.12);
+            background-color: var(--bg-card-dark);
+            margin-bottom: 25px;
+            min-height: 200px;
+            transition: all 0.4s ease;
+        }
+
+        .project-row:hover {
+            border-color: var(--accent-gold);
+        }
+
+        .project-row .project-row-img-wrap {
+            width: 42%;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .project-row .project-row-img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .project-row:hover .project-row-img {
+            transform: scale(1.06);
+        }
+
+        .project-row .project-row-content {
+            width: 58%;
+            padding: 30px 25px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: flex-start;
+            background-color: var(--bg-card-dark);
+            color: var(--text-champagne);
+            transition: all 0.4s ease;
+        }
+
+        .project-row:nth-child(even) .project-row-content {
+            background-color: var(--bg-champagne);
+            color: var(--text-dark);
+        }
+
+        .project-row:nth-child(even) .project-row-content .project-row-title {
+            color: var(--text-dark);
+        }
+
+        .project-row:nth-child(even) .project-row-content .project-row-desc {
+            color: rgba(10, 5, 5, 0.7);
+        }
+
+        .project-row-title {
+            font-family: var(--font-serif);
+            font-size: 1.5rem;
+            color: var(--text-champagne);
+            margin-bottom: 10px;
+            transition: color 0.4s ease;
+        }
+
+        .project-row-desc {
+            font-size: 0.85rem;
+            color: rgba(234, 221, 203, 0.7);
+            line-height: 1.6;
+        }
+
+        @media (max-width: 768px) {
+            .project-row {
+                flex-direction: column;
+                min-height: auto;
+            }
+            .project-row .project-row-img-wrap {
+                width: 100%;
+                height: 200px;
+            }
+            .project-row .project-row-content {
+                width: 100%;
+                padding: 20px;
+            }
+            .design-quotes-container {
+                grid-template-columns: 1fr !important;
+                gap: 20px !important;
+                padding: 20px 0 !important;
+                margin: 30px auto !important;
+            }
+        }
+
         /* --- DESIGN GALLERY & LIGHTBOX MODAL --- */
         .gallery-grid {
             display: grid;
@@ -1865,7 +1965,18 @@
                 <p class="overlay-subtitle" data-i18n="card-design-desc">beauty in every detail</p>
             </div>
             
-            <div id="design-projects-container" class="portfolio-grid" style="max-width: 1000px; margin: 0 auto;">
+            <p class="design-intro" data-i18n="design-page-intro" style="max-width: 900px; margin: 0 auto 35px auto; line-height: 1.8; text-align: justify; color: rgba(234, 221, 203, 0.85); font-size: 1.05rem;"></p>
+
+            <div class="design-quotes-container" style="max-width: 900px; margin: 40px auto; display: grid; grid-template-columns: 1fr 1fr; gap: 30px; border-top: 1px solid rgba(234,221,203,0.15); border-bottom: 1px solid rgba(234,221,203,0.15); padding: 30px 0;">
+                <div class="design-quote-card" style="border-left: 2px solid var(--accent-gold); padding-left: 20px; display: flex; flex-direction: column; justify-content: center;">
+                    <p class="design-quote-text" data-i18n="design-quote-1" style="font-family: var(--font-serif); font-size: 1.15rem; font-style: italic; line-height: 1.6; color: var(--text-champagne);"></p>
+                </div>
+                <div class="design-quote-card" style="border-left: 2px solid var(--accent-gold); padding-left: 20px; display: flex; flex-direction: column; justify-content: center;">
+                    <p class="design-quote-text" data-i18n="design-quote-2" style="font-family: var(--font-serif); font-size: 1.15rem; font-style: italic; line-height: 1.6; color: var(--text-champagne);"></p>
+                </div>
+            </div>
+
+            <div id="design-projects-container" style="max-width: 1000px; margin: 0 auto;">
                 <!-- Dynamically loaded design projects -->
             </div>
 
@@ -2078,6 +2189,9 @@ I believe that every work of art carries energy, history and message. For me, cr
                 "tab-prints": "Digital Prints",
                 "overlay-book-title": "Art Book",
                 "overlay-design-title": "Design Portfolio",
+                "design-page-intro": "For me, design is the subtle point of confluence – function, comfort, and beauty. I believe that a truly good interior does not just look beautiful, but creates a feeling that one always wants to return to. Every project is a carefully crafted balance between aesthetics, practicality, and individuality. To me, details are not an afterthought – they are what gives character and turns a space into an experience. I create interiors with attention to the lifestyle, needs, and dreams of each client. Because a home and a workspace are not just places – they are a reflection of the person who lives and works in their space.",
+                "design-quote-1": "A beautiful interior is not measured only by what we see, but by the way it makes us feel.",
+                "design-quote-2": "I believe that every home has its own story. My role is to give it space to come alive.",
                 "design-intro": "Specializing in luxury brand identities, high-end editorial layouts, monograms, and packaging. I blend organic art textures with modern grid systems to create branding that feels premium, tactile, and unforgettable.",
                 "design-proj1-title": "Luxe Studio Identity",
                 "design-proj1-meta": "Branding & Stationery",
@@ -2143,6 +2257,9 @@ I believe that every work of art carries energy, history and message. For me, cr
                 "tab-prints": "Дигитални принтове",
                 "overlay-book-title": "Книга",
                 "overlay-design-title": "Дизайн Портфолио",
+                "design-page-intro": "Дизайнът за мен е тънкият момент на съчетанието – функция, уют и красота. Вярвам, че истински добрият интериор не просто изглежда красиво, а създава усещане, към което човек винаги иска да се връща. Всеки проект е внимателно изграден баланс между естетика, практичност и индивидуалност. За мен детайлите не са допълнение – те са това, което придава характер и превръща пространството в преживяване. Създавам интериори с внимание към начина на живот, нуждите и мечтите на всеки клиент. Защото домът и работното място не са просто място – те са отражение на човека, който живее/работи в своето пространство.",
+                "design-quote-1": "Красивият интериор не се измерва само с това, което виждаме, а с начина, по който ни кара да се чувстваме.",
+                "design-quote-2": "Вярвам, че всеки дом има своя история. Моята роля е да ѝ дам пространство, в което да оживее.",
                 "design-intro": "Специализирам в изграждането на луксозни бранд идентичности, редакционни разпределения, монограми и опаковки. Смесвам органични арт текстури с модерни решетъчни системи, за да създам марка, която се усеща премиум и незабравима.",
                 "design-proj1-title": "Идентичност Luxe Studio",
                 "design-proj1-meta": "Брандинг & Корпоративни материали",
@@ -2383,13 +2500,15 @@ I believe that every work of art carries energy, history and message. For me, cr
                 const desc = currentLanguage === 'bg' ? proj.desc_bg : proj.desc_en;
                 
                 const item = document.createElement('div');
-                item.className = 'portfolio-item';
+                item.className = 'project-row';
                 item.onclick = () => openProjectGallery(proj.id);
                 item.innerHTML = `
-                    <div class="portfolio-img" style="background-image: url('${proj.cover_image}'); cursor: pointer;"></div>
-                    <div class="portfolio-info">
-                        <h3 class="portfolio-item-title">${title}</h3>
-                        <p class="portfolio-item-desc">${desc}</p>
+                    <div class="project-row-img-wrap">
+                        <div class="project-row-img" style="background-image: url('${proj.cover_image}');"></div>
+                    </div>
+                    <div class="project-row-content">
+                        <h3 class="project-row-title">${title}</h3>
+                        <p class="project-row-desc">${desc}</p>
                     </div>
                 `;
                 container.appendChild(item);
