@@ -2093,11 +2093,7 @@ I believe that every work of art carries energy, history and message. For me, cr
                         <h3 class="book-title">${name}</h3>
                         <div class="book-author">${authorText}</div>
                         <p class="book-desc">${desc}</p>
-                        <ul class="book-specs">
-                            <li>${currentLanguage === 'bg' ? '120 страници, подвързани в луксозно книжно платно цвят шампанско' : '120 pages, bound in premium textured champagne book cloth'}</li>
-                            <li>${currentLanguage === 'bg' ? 'Печат с висока разделителна способност върху 170g матова архивна хартия' : 'High-definition offset printing on 170gsm matte Munken paper'}</li>
-                            <li>${currentLanguage === 'bg' ? 'Златно-релефен печат на корицата и ръчно изработен предпазен калъф' : 'Gold-foil embossed cover and custom packaging slip'}</li>
-                        </ul>
+
                         <div class="portfolio-buy-row" style="width: 100%;">
                             <span class="portfolio-price">${book.price}</span>
                             <button class="btn-buy" onclick="openCheckout('${name}', '${book.price}', '${book.type === 'digital_book' ? 'digital' : 'physical'}')">${buyBtnText}</button>
