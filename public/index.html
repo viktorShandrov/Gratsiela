@@ -1361,16 +1361,25 @@
 
         @media (max-width: 768px) {
             .project-row {
-                flex-direction: column;
-                min-height: auto;
+                min-height: 120px;
             }
             .project-row .project-row-img-wrap {
-                width: 100%;
-                height: 200px;
+                width: 35%;
+            }
+            .project-row .project-row-img {
+                transition: transform 0.4s ease;
             }
             .project-row .project-row-content {
-                width: 100%;
-                padding: 20px;
+                width: 65%;
+                padding: 15px 12px;
+            }
+            .project-row-title {
+                font-size: 1.1rem;
+                margin-bottom: 6px;
+            }
+            .project-row-desc {
+                font-size: 0.75rem;
+                line-height: 1.4;
             }
             .design-quotes-container {
                 grid-template-columns: 1fr !important;
@@ -1608,6 +1617,36 @@
 
         /* --- RESPONSIVE MEDIA QUERIES --- */
         @media (max-width: 1024px) {
+            .sidebar {
+                width: 180px;
+                padding: 40px 15px;
+            }
+            .logo-container {
+                width: 70px;
+                height: 55px;
+            }
+            .desktop-nav ul {
+                gap: 15px;
+            }
+            .desktop-nav a {
+                font-size: 0.75rem;
+            }
+            .sidebar-bottom {
+                font-size: 0.75rem;
+            }
+            .main-content {
+                margin-left: 180px;
+                width: calc(100% - 180px);
+            }
+            .category-item .card-content {
+                padding: 15px 10px;
+            }
+            .card-title {
+                font-size: 0.95rem;
+            }
+            .card-desc {
+                font-size: 0.65rem;
+            }
             .portfolio-grid {
                 grid-template-columns: repeat(2, 1fr);
                 gap: 25px;
