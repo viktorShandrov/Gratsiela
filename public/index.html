@@ -923,6 +923,19 @@
             left: 5px;
         }
 
+        .books-container {
+            display: flex;
+            flex-direction: column;
+            gap: 60px;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .books-container > .book-layout:not(:last-child) {
+            border-bottom: 1px solid rgba(234, 221, 203, 0.15);
+            padding-bottom: 60px;
+        }
+
         /* 3. Design Section */
         .design-intro {
             text-align: center;
@@ -1615,7 +1628,7 @@
             </div>
             
             <!-- Book Container (Dynamically Populated) -->
-            <div class="book-layout"></div>
+            <div class="books-container"></div>
         </section>
 
         <!-- --- 3. DESIGN PORTFOLIO OVERLAY --- -->
@@ -1993,7 +2006,7 @@ I believe that every work of art carries energy, history and message. For me, cr
         function renderProducts() {
             const canvasContainer = document.getElementById('artworks-canvas');
             const printsContainer = document.getElementById('artworks-prints');
-            const bookContainer = document.querySelector('.book-layout');
+            const bookContainer = document.querySelector('.books-container');
 
             if (!canvasContainer || !printsContainer) return;
 
@@ -2079,27 +2092,35 @@ I believe that every work of art carries energy, history and message. For me, cr
             }
 
             // 3. Render Books
-            if (bookProds.length > 0 && bookContainer) {
-                const book = bookProds[0]; // Fetch the seeded book
-                const name = currentLanguage === 'bg' ? book.name_bg : book.name_en;
-                const desc = currentLanguage === 'bg' ? book.desc_bg : book.desc_en;
-                const authorText = currentLanguage === 'bg' ? 'ОТ ГРАЦИЕЛА ИВАНОВА' : 'BY GRATSIELA IVANOVA';
+            if (bookContainer) {
+                bookContainer.innerHTML = '';
+                if (bookProds.length === 0) {
+                    bookContainer.innerHTML = `<div style="text-align: center; color: rgba(234, 221, 203, 0.4); padding: 40px 0;">${currentLanguage === 'bg' ? 'Няма намерени книги.' : 'No books found.'}</div>`;
+                } else {
+                    bookProds.forEach(book => {
+                        const name = currentLanguage === 'bg' ? book.name_bg : book.name_en;
+                        const desc = currentLanguage === 'bg' ? book.desc_bg : book.desc_en;
+                        const authorText = currentLanguage === 'bg' ? 'ОТ ГРАЦИЕЛА ИВАНОВА' : 'BY GRATSIELA IVANOVA';
 
-                bookContainer.innerHTML = `
-                    <div class="book-img-holder">
-                        <img src="${book.image}" alt="${name}" class="book-cover">
-                    </div>
-                    <div class="book-details">
-                        <h3 class="book-title">${name}</h3>
-                        <div class="book-author">${authorText}</div>
-                        <p class="book-desc">${desc}</p>
+                        bookContainer.innerHTML += `
+                            <div class="book-layout">
+                                <div class="book-img-holder">
+                                    <img src="${book.image}" alt="${name}" class="book-cover">
+                                </div>
+                                <div class="book-details">
+                                    <h3 class="book-title">${name}</h3>
+                                    <div class="book-author">${authorText}</div>
+                                    <p class="book-desc">${desc}</p>
 
-                        <div class="portfolio-buy-row" style="width: 100%;">
-                            <span class="portfolio-price">${book.price}</span>
-                            <button class="btn-buy" onclick="openCheckout('${name}', '${book.price}', '${book.type === 'digital_book' ? 'digital' : 'physical'}')">${buyBtnText}</button>
-                        </div>
-                    </div>
-                `;
+                                    <div class="portfolio-buy-row" style="width: 100%;">
+                                        <span class="portfolio-price">${book.price}</span>
+                                        <button class="btn-buy" onclick="openCheckout('${name}', '${book.price}', '${book.type === 'digital_book' ? 'digital' : 'physical'}')">${buyBtnText}</button>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    });
+                }
             }
         }
 
