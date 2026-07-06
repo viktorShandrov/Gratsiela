@@ -118,7 +118,7 @@ const DEFAULT_PRODUCTS = [
         type: "print",
         desc_en: "A deep, dramatic print exploring negative space, dark claret paint layers, and fine golden typography lines.",
         desc_bg: "Дълбок, драматичен принт, изследващ негативното пространство, тъмните слоеве боя в цвят бордо и фините златни типографски линии.",
-        image: "/assets/card_design.png",
+        image: "/assets/card_design_new.png",
         filterClass: "",
         materials_en: "Giclée Fine Art Print",
         materials_bg: "Художествен принт (Giclée)",
