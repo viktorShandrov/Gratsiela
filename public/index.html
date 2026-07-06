@@ -2536,7 +2536,6 @@ I believe that every work of art carries energy, history and message. For me, cr
 
             allProjects.forEach(proj => {
                 const title = currentLanguage === 'bg' ? proj.title_bg : proj.title_en;
-                const desc = currentLanguage === 'bg' ? proj.desc_bg : proj.desc_en;
                 
                 const item = document.createElement('div');
                 item.className = 'project-row';
@@ -2547,7 +2546,6 @@ I believe that every work of art carries energy, history and message. For me, cr
                     </div>
                     <div class="project-row-content">
                         <h3 class="project-row-title">${title}</h3>
-                        <p class="project-row-desc">${desc}</p>
                     </div>
                 `;
                 container.appendChild(item);
