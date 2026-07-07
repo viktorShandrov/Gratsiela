@@ -995,6 +995,7 @@
             if (!root) return;
 
             const name = currentLanguage === 'bg' ? prod.name_bg : prod.name_en;
+            const escapedName = name.replace(/"/g, '&quot;').replace(/'/g, '&#39;');
             const desc = currentLanguage === 'bg' ? prod.desc_bg : prod.desc_en;
             const symbolism = currentLanguage === 'bg' ? (prod.symbolism_bg || desc) : (prod.symbolism_en || desc);
             const materials = currentLanguage === 'bg' ? (prod.materials_bg || 'Маслени бои на платно') : (prod.materials_en || 'Oil on Canvas');
@@ -1042,7 +1043,7 @@
                         <h1 class="product-title">${name}</h1>
                         <div class="product-price-row">
                             <span class="product-price">${prod.price}</span>
-                            <button class="btn-buy-primary" onclick="openCheckout('${name}', '${prod.price}', '${(prod.type === 'print' || prod.type === 'digital_book') ? 'digital' : 'physical'}')">${buyText}</button>
+                            <button class="btn-buy-primary" data-name="${escapedName}" data-price="${prod.price}" data-type="${(prod.type === 'print' || prod.type === 'digital_book') ? 'digital' : 'physical'}" onclick="openCheckout(this.getAttribute('data-name'), this.getAttribute('data-price'), this.getAttribute('data-type'))">${buyText}</button>
                         </div>
                     </div>
 
@@ -1098,6 +1099,7 @@
             root.innerHTML = '';
             suggestions.forEach(item => {
                 const name = currentLanguage === 'bg' ? item.name_bg : item.name_en;
+                const escapedName = name.replace(/"/g, '&quot;').replace(/'/g, '&#39;');
                 const desc = currentLanguage === 'bg' ? item.desc_bg : item.desc_en;
                 
                 let metaType = currentLanguage === 'bg' ? translations.bg["type-canvas"] : translations.en["type-canvas"];
@@ -1127,7 +1129,7 @@
                             </div>
                             <div class="portfolio-buy-row" onclick="event.stopPropagation();">
                                 <span class="portfolio-price">${item.price}</span>
-                                <button class="btn-buy" onclick="openCheckout('${name}', '${item.price}', '${(item.type === 'print' || item.type === 'digital_book') ? 'digital' : 'physical'}')">${buyText}</button>
+                                <button class="btn-buy" data-name="${escapedName}" data-price="${item.price}" data-type="${(item.type === 'print' || item.type === 'digital_book') ? 'digital' : 'physical'}" onclick="openCheckout(this.getAttribute('data-name'), this.getAttribute('data-price'), this.getAttribute('data-type'))">${buyText}</button>
                             </div>
                         </div>
                     </a>

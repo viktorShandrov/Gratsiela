@@ -2410,6 +2410,7 @@ I believe that every work of art carries energy, history and message. For me, cr
             } else {
                 canvasProds.forEach(prod => {
                     const name = currentLanguage === 'bg' ? prod.name_bg : prod.name_en;
+                    const escapedName = name.replace(/"/g, '&quot;').replace(/'/g, '&#39;');
                     const desc = currentLanguage === 'bg' ? prod.desc_bg : prod.desc_en;
                     const metaType = currentLanguage === 'bg' ? 'Акрил върху платно' : 'Acrylic on Canvas';
                     const filterStyle = prod.filterClass ? `filter: ${prod.filterClass};` : '';
@@ -2432,7 +2433,7 @@ I believe that every work of art carries energy, history and message. For me, cr
                                 </div>
                                 <div class="portfolio-buy-row" onclick="event.stopPropagation();">
                                     <span class="portfolio-price">${prod.price}</span>
-                                    <button class="btn-buy" onclick="openCheckout('${name}', '${prod.price}', 'physical')">${buyBtnText}</button>
+                                    <button class="btn-buy" data-name="${escapedName}" data-price="${prod.price}" data-type="physical" onclick="openCheckout(this.getAttribute('data-name'), this.getAttribute('data-price'), this.getAttribute('data-type'))">${buyBtnText}</button>
                                 </div>
                             </div>
                         </a>
@@ -2446,6 +2447,7 @@ I believe that every work of art carries energy, history and message. For me, cr
             } else {
                 printProds.forEach(prod => {
                     const name = currentLanguage === 'bg' ? prod.name_bg : prod.name_en;
+                    const escapedName = name.replace(/"/g, '&quot;').replace(/'/g, '&#39;');
                     const desc = currentLanguage === 'bg' ? prod.desc_bg : prod.desc_en;
                     const metaType = currentLanguage === 'bg' ? 'Дигитален принт' : 'Giclée Fine Art Print';
                     const filterStyle = prod.filterClass ? `filter: ${prod.filterClass};` : '';
@@ -2468,7 +2470,7 @@ I believe that every work of art carries energy, history and message. For me, cr
                                 </div>
                                 <div class="portfolio-buy-row" onclick="event.stopPropagation();">
                                     <span class="portfolio-price">${prod.price}</span>
-                                    <button class="btn-buy" onclick="openCheckout('${name}', '${prod.price}', 'digital')">${buyBtnText}</button>
+                                    <button class="btn-buy" data-name="${escapedName}" data-price="${prod.price}" data-type="digital" onclick="openCheckout(this.getAttribute('data-name'), this.getAttribute('data-price'), this.getAttribute('data-type'))">${buyBtnText}</button>
                                 </div>
                             </div>
                         </a>
@@ -2484,6 +2486,7 @@ I believe that every work of art carries energy, history and message. For me, cr
                 } else {
                     bookProds.forEach(book => {
                         const name = currentLanguage === 'bg' ? book.name_bg : book.name_en;
+                        const escapedName = name.replace(/"/g, '&quot;').replace(/'/g, '&#39;');
                         const desc = currentLanguage === 'bg' ? book.desc_bg : book.desc_en;
                         const authorText = currentLanguage === 'bg' ? 'ОТ ГРАЦИЕЛА ИВАНОВА' : 'BY GRATSIELA IVANOVA';
 
@@ -2499,7 +2502,7 @@ I believe that every work of art carries energy, history and message. For me, cr
 
                                     <div class="portfolio-buy-row" style="width: 100%;">
                                         <span class="portfolio-price">${book.price}</span>
-                                        <button class="btn-buy" onclick="openCheckout('${name}', '${book.price}', '${book.type === 'digital_book' ? 'digital' : 'physical'}')">${buyBtnText}</button>
+                                        <button class="btn-buy" data-name="${escapedName}" data-price="${book.price}" data-type="${book.type === 'digital_book' ? 'digital' : 'physical'}" onclick="openCheckout(this.getAttribute('data-name'), this.getAttribute('data-price'), this.getAttribute('data-type'))">${buyBtnText}</button>
                                     </div>
                                 </div>
                             </div>
