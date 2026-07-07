@@ -961,6 +961,15 @@
             }
         }
 
+        // --- IMAGE PRELOADER HELPER ---
+        function preloadImages(urls) {
+            urls.forEach(url => {
+                if (!url) return;
+                const img = new Image();
+                img.src = url;
+            });
+        }
+
         // Fetch products
         function initProductPage() {
             if (!productId) {
@@ -984,6 +993,16 @@
                     document.title = `${currentLanguage === 'bg' ? activeProduct.name_bg : activeProduct.name_en} | Gratsiela Ivanova`;
 
                     setLanguage(currentLanguage);
+
+                    // Preload all product images to prevent black frames on detailed view / suggestion cards
+                    const urls = [];
+                    products.forEach(p => {
+                        if (p.image) urls.push(p.image);
+                        if (p.images && Array.isArray(p.images)) {
+                            p.images.forEach(img => urls.push(img));
+                        }
+                    });
+                    preloadImages(urls);
                 })
                 .catch(err => {
                     console.error('Error loading product details:', err);

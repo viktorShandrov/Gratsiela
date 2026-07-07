@@ -2377,6 +2377,15 @@ I believe that every work of art carries energy, history and message. For me, cr
             renderProjects();
         }
 
+        // --- IMAGE PRELOADER HELPER ---
+        function preloadImages(urls) {
+            urls.forEach(url => {
+                if (!url) return;
+                const img = new Image();
+                img.src = url;
+            });
+        }
+
         // --- DYNAMIC PRODUCTS RENDER ---
         function loadProducts() {
             fetch('/api/products')
@@ -2384,6 +2393,16 @@ I believe that every work of art carries energy, history and message. For me, cr
                 .then(products => {
                     allProducts = products;
                     renderProducts();
+                    
+                    // Preload all product images to prevent black screens in gallery/shop
+                    const urls = [];
+                    products.forEach(p => {
+                        if (p.image) urls.push(p.image);
+                        if (p.images && Array.isArray(p.images)) {
+                            p.images.forEach(img => urls.push(img));
+                        }
+                    });
+                    preloadImages(urls);
                 })
                 .catch(err => console.error('Error fetching dynamic products:', err));
         }
@@ -2523,6 +2542,16 @@ I believe that every work of art carries energy, history and message. For me, cr
                 .then(projects => {
                     allProjects = projects;
                     renderProjects();
+                    
+                    // Preload all project images to prevent black screens when opening galleries
+                    const urls = [];
+                    projects.forEach(p => {
+                        if (p.cover_image) urls.push(p.cover_image);
+                        if (p.images && Array.isArray(p.images)) {
+                            p.images.forEach(img => urls.push(img));
+                        }
+                    });
+                    preloadImages(urls);
                 })
                 .catch(err => console.error('Error fetching dynamic projects:', err));
         }
