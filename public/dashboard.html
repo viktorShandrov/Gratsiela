@@ -397,6 +397,13 @@
             color: var(--bg-dark);
         }
 
+        .btn-table-reorder {
+            padding: 5px 8px;
+            font-size: 0.65rem;
+            margin-right: 2px;
+            margin-bottom: 5px;
+        }
+
         /* --- MODAL POPUP FORM --- */
         .modal {
             position: fixed;
@@ -1108,48 +1115,7 @@
                 .then(res => res.json())
                 .then(products => {
                     currentProducts = products;
-                    const tbody = document.getElementById('products-table-body');
-                    tbody.innerHTML = '';
-
-                    if (products.length === 0) {
-                        tbody.innerHTML = `
-                            <tr>
-                                <td colspan="7" style="text-align: center; padding: 40px; color: rgba(234, 221, 203, 0.4);">
-                                    No products registered in the database.
-                                </td>
-                            </tr>
-                        `;
-                        return;
-                    }
-
-                    products.forEach(prod => {
-                        const typeBadge = prod.type === 'canvas' ? 'badge-canvas' : (prod.type === 'print' ? 'badge-print' : 'badge-book');
-                        const filterIndicator = prod.filterClass ? `<div style="font-size:0.65rem; color: var(--accent-pink); font-family:monospace; margin-top:5px;">${prod.filterClass}</div>` : '';
-                        
-                        const tr = document.createElement('tr');
-                        tr.innerHTML = `
-                            <td>
-                                <div class="product-img-cell" style="background-image: url('${prod.image}'); ${prod.filterClass ? 'filter:' + prod.filterClass : ''}"></div>
-                            </td>
-                            <td>
-                                <div style="font-weight:600;">${prod.name_en}</div>
-                                <div style="color: rgba(234,221,203,0.5); font-size:0.75rem; margin-top:2px;">${prod.name_bg}</div>
-                                <div style="font-size:0.65rem; color: var(--accent-gold); font-family:monospace; margin-top:4px;">ID: ${prod.id}</div>
-                            </td>
-                            <td style="font-weight: 600; color: var(--accent-gold);">${prod.price}</td>
-                            <td>
-                                <span class="badge ${typeBadge}">${prod.type}</span>
-                                ${filterIndicator}
-                            </td>
-                            <td style="max-width: 200px; color: rgba(234,221,203,0.7); font-size:0.8rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${prod.desc_en}</td>
-                            <td style="max-width: 200px; color: rgba(234,221,203,0.7); font-size:0.8rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${prod.desc_bg}</td>
-                            <td>
-                                <button class="btn-table-action" onclick="openProductModal('${prod.id}')">Edit</button>
-                                <button class="btn-table-action btn-table-delete" onclick="deleteProduct('${prod.id}')">Delete</button>
-                            </td>
-                        `;
-                        tbody.appendChild(tr);
-                    });
+                    renderProductsTable(products);
                 })
                 .catch(err => console.error('Error fetching inventory list:', err));
         }
@@ -1323,41 +1289,7 @@
                 .then(res => res.json())
                 .then(projects => {
                     currentProjects = projects;
-                    const tbody = document.getElementById('projects-table-body');
-                    tbody.innerHTML = '';
-
-                    if (projects.length === 0) {
-                        tbody.innerHTML = `
-                            <tr>
-                                <td colspan="5" style="text-align: center; padding: 40px; color: rgba(234, 221, 203, 0.4);">
-                                    No design projects registered in the database.
-                                </td>
-                            </tr>
-                        `;
-                        return;
-                    }
-
-                    projects.forEach(proj => {
-                        const tr = document.createElement('tr');
-                        tr.innerHTML = `
-                            <td>
-                                <div class="product-img-cell" style="background-image: url('${proj.cover_image}')"></div>
-                            </td>
-                            <td>
-                                <div style="font-weight:600;">${proj.title_en}</div>
-                                <div style="color: rgba(234,221,203,0.5); font-size:0.75rem; margin-top:2px;">${proj.title_bg}</div>
-                                <div style="font-size:0.65rem; color: var(--accent-gold); font-family:monospace; margin-top:4px;">ID: ${proj.id}</div>
-                            </td>
-                            <td style="max-width: 200px; color: rgba(234,221,203,0.7); font-size:0.8rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${proj.desc_en}</td>
-                            <td style="max-width: 200px; color: rgba(234,221,203,0.7); font-size:0.8rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${proj.desc_bg}</td>
-                            <td style="font-weight: 600; color: var(--accent-gold);">${proj.images ? proj.images.length : 0} images</td>
-                            <td>
-                                <button class="btn-table-action" onclick="openProjectModal('${proj.id}')">Edit</button>
-                                <button class="btn-table-action btn-table-delete" onclick="deleteProject('${proj.id}')">Delete</button>
-                            </td>
-                        `;
-                        tbody.appendChild(tr);
-                    });
+                    renderProjectsTable(projects);
                 })
                 .catch(err => console.error('Error fetching projects list:', err));
         }
@@ -1561,6 +1493,192 @@
                 errorDiv.innerText = 'Connection error.';
                 errorDiv.style.display = 'block';
             }
+        }
+
+        // --- REORDER OPERATIONS ---
+        async function moveProductUp(index) {
+            if (index <= 0) return;
+            const temp = currentProducts[index];
+            currentProducts[index] = currentProducts[index - 1];
+            currentProducts[index - 1] = temp;
+            
+            renderProductsTable(currentProducts);
+            await saveProductOrder();
+        }
+
+        async function moveProductDown(index) {
+            if (index >= currentProducts.length - 1) return;
+            const temp = currentProducts[index];
+            currentProducts[index] = currentProducts[index + 1];
+            currentProducts[index + 1] = temp;
+            
+            renderProductsTable(currentProducts);
+            await saveProductOrder();
+        }
+
+        async function saveProductOrder() {
+            const ids = currentProducts.map(p => p.id);
+            try {
+                await fetch('/api/products/reorder', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ ids })
+                });
+            } catch(e) {
+                console.error('Failed to save product order:', e);
+            }
+        }
+
+        function renderProductsTable(products) {
+            const tbody = document.getElementById('products-table-body');
+            tbody.innerHTML = '';
+
+            if (products.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7" style="text-align: center; padding: 40px; color: rgba(234, 221, 203, 0.4);">
+                            No products registered in the database.
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            products.forEach((prod, index) => {
+                const typeBadge = prod.type === 'canvas' ? 'badge-canvas' : (prod.type === 'print' ? 'badge-print' : 'badge-book');
+                const filterIndicator = prod.filterClass ? `<div style="font-size:0.65rem; color: var(--accent-pink); font-family:monospace; margin-top:5px;">${prod.filterClass}</div>` : '';
+                
+                let orderButtonsHTML = '';
+                if (index > 0) {
+                    orderButtonsHTML += `<button class="btn-table-action btn-table-reorder" onclick="moveProductUp(${index})">▲</button>`;
+                } else {
+                    orderButtonsHTML += `<button class="btn-table-action btn-table-reorder disabled" style="opacity: 0.2; cursor: default;" disabled>▲</button>`;
+                }
+                if (index < products.length - 1) {
+                    orderButtonsHTML += `<button class="btn-table-action btn-table-reorder" onclick="moveProductDown(${index})">▼</button>`;
+                } else {
+                    orderButtonsHTML += `<button class="btn-table-action btn-table-reorder disabled" style="opacity: 0.2; cursor: default;" disabled>▼</button>`;
+                }
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>
+                        <div class="product-img-cell" style="background-image: url('${prod.image}'); ${prod.filterClass ? 'filter:' + prod.filterClass : ''}"></div>
+                    </td>
+                    <td>
+                        <div style="font-weight:600;">${prod.name_en}</div>
+                        <div style="color: rgba(234,221,203,0.5); font-size:0.75rem; margin-top:2px;">${prod.name_bg}</div>
+                        <div style="font-size:0.65rem; color: var(--accent-gold); font-family:monospace; margin-top:4px;">ID: ${prod.id}</div>
+                    </td>
+                    <td style="font-weight: 600; color: var(--accent-gold);">${prod.price}</td>
+                    <td>
+                        <span class="badge ${typeBadge}">${prod.type}</span>
+                        ${filterIndicator}
+                    </td>
+                    <td style="max-width: 200px; color: rgba(234,221,203,0.7); font-size:0.8rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${prod.desc_en}</td>
+                    <td style="max-width: 200px; color: rgba(234,221,203,0.7); font-size:0.8rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${prod.desc_bg}</td>
+                    <td>
+                        <div style="display: flex; gap: 4px; align-items: center;">
+                            ${orderButtonsHTML}
+                            <button class="btn-table-action" onclick="openProductModal('${prod.id}')">Edit</button>
+                            <button class="btn-table-action btn-table-delete" onclick="deleteProduct('${prod.id}')">Delete</button>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        async function moveProjectUp(index) {
+            if (index <= 0) return;
+            const temp = currentProjects[index];
+            currentProjects[index] = currentProjects[index - 1];
+            currentProjects[index - 1] = temp;
+            
+            renderProjectsTable(currentProjects);
+            await saveProjectOrder();
+        }
+
+        async function moveProjectDown(index) {
+            if (index >= currentProjects.length - 1) return;
+            const temp = currentProjects[index];
+            currentProjects[index] = currentProjects[index + 1];
+            currentProjects[index + 1] = temp;
+            
+            renderProjectsTable(currentProjects);
+            await saveProjectOrder();
+        }
+
+        async function saveProjectOrder() {
+            const ids = currentProjects.map(p => p.id);
+            try {
+                await fetch('/api/projects/reorder', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ ids })
+                });
+            } catch(e) {
+                console.error('Failed to save project order:', e);
+            }
+        }
+
+        function renderProjectsTable(projects) {
+            const tbody = document.getElementById('projects-table-body');
+            tbody.innerHTML = '';
+
+            if (projects.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="6" style="text-align: center; padding: 40px; color: rgba(234, 221, 203, 0.4);">
+                            No design projects registered in the database.
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            projects.forEach((proj, index) => {
+                let orderButtonsHTML = '';
+                if (index > 0) {
+                    orderButtonsHTML += `<button class="btn-table-action btn-table-reorder" onclick="moveProjectUp(${index})">▲</button>`;
+                } else {
+                    orderButtonsHTML += `<button class="btn-table-action btn-table-reorder disabled" style="opacity: 0.2; cursor: default;" disabled>▲</button>`;
+                }
+                if (index < projects.length - 1) {
+                    orderButtonsHTML += `<button class="btn-table-action btn-table-reorder" onclick="moveProjectDown(${index})">▼</button>`;
+                } else {
+                    orderButtonsHTML += `<button class="btn-table-action btn-table-reorder disabled" style="opacity: 0.2; cursor: default;" disabled>▼</button>`;
+                }
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>
+                        <div class="product-img-cell" style="background-image: url('${proj.cover_image}')"></div>
+                    </td>
+                    <td>
+                        <div style="font-weight:600;">${proj.title_en}</div>
+                        <div style="color: rgba(234,221,203,0.5); font-size:0.75rem; margin-top:2px;">${proj.title_bg}</div>
+                        <div style="font-size:0.65rem; color: var(--accent-gold); font-family:monospace; margin-top:4px;">ID: ${proj.id}</div>
+                    </td>
+                    <td style="max-width: 200px; color: rgba(234,221,203,0.7); font-size:0.8rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${proj.desc_en}</td>
+                    <td style="max-width: 200px; color: rgba(234,221,203,0.7); font-size:0.8rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${proj.desc_bg}</td>
+                    <td style="font-weight: 600; color: var(--accent-gold);">${proj.images ? proj.images.length : 0} images</td>
+                    <td>
+                        <div style="display: flex; gap: 4px; align-items: center;">
+                            ${orderButtonsHTML}
+                            <button class="btn-table-action" onclick="openProjectModal('${proj.id}')">Edit</button>
+                            <button class="btn-table-action btn-table-delete" onclick="deleteProject('${proj.id}')">Delete</button>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
         }
     </script>
 </body>

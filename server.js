@@ -455,6 +455,27 @@ app.delete('/api/products/:id', async (req, res) => {
     }
 });
 
+// Protected endpoint to reorder products
+app.post('/api/products/reorder', async (req, res) => {
+    if (!(await isAuthorized(req))) {
+        return res.status(401).json({ error: 'Unauthorized access' });
+    }
+
+    const { ids } = req.body;
+    if (!ids || !Array.isArray(ids)) {
+        return res.status(400).json({ error: 'Missing or invalid product IDs list' });
+    }
+
+    try {
+        await db.reorderProducts(ids);
+        res.json({ success: true });
+    } catch (err) {
+        console.error('Error in reordering products API:', err);
+        res.status(500).json({ error: 'Failed to reorder products' });
+    }
+});
+
+
 // Public endpoint to get all projects
 app.get('/api/projects', async (req, res) => {
     try {
@@ -529,6 +550,27 @@ app.delete('/api/projects/:id', async (req, res) => {
         res.status(500).json({ error: 'Failed to delete project' });
     }
 });
+
+// Protected endpoint to reorder projects
+app.post('/api/projects/reorder', async (req, res) => {
+    if (!(await isAuthorized(req))) {
+        return res.status(401).json({ error: 'Unauthorized access' });
+    }
+
+    const { ids } = req.body;
+    if (!ids || !Array.isArray(ids)) {
+        return res.status(400).json({ error: 'Missing or invalid project IDs list' });
+    }
+
+    try {
+        await db.reorderProjects(ids);
+        res.json({ success: true });
+    } catch (err) {
+        console.error('Error in reordering projects API:', err);
+        res.status(500).json({ error: 'Failed to reorder projects' });
+    }
+});
+
 
 const DIGITAL_FILES_MAP = {
     'digital fluidity i': 'digital_fluidity_1.png',

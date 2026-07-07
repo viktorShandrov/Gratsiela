@@ -338,7 +338,8 @@ async function initDb() {
                 symbolism_en TEXT DEFAULT '',
                 symbolism_bg TEXT DEFAULT '',
                 images TEXT DEFAULT '[]',
-                digital_download_url VARCHAR(1000) DEFAULT ''
+                digital_download_url VARCHAR(1000) DEFAULT '',
+                position INT DEFAULT 0
             )
         `);
 
@@ -351,6 +352,7 @@ async function initDb() {
             ALTER TABLE products ADD COLUMN IF NOT EXISTS symbolism_bg TEXT DEFAULT '';
             ALTER TABLE products ADD COLUMN IF NOT EXISTS images TEXT DEFAULT '[]';
             ALTER TABLE products ADD COLUMN IF NOT EXISTS digital_download_url VARCHAR(1000) DEFAULT '';
+            ALTER TABLE products ADD COLUMN IF NOT EXISTS position INT DEFAULT 0;
         `);
 
         // Settings table
@@ -370,8 +372,14 @@ async function initDb() {
                 desc_en TEXT,
                 desc_bg TEXT,
                 cover_image VARCHAR(255) NOT NULL,
-                images TEXT DEFAULT '[]'
+                images TEXT DEFAULT '[]',
+                position INT DEFAULT 0
             )
+        `);
+
+        // Migration: Ensure position exists on projects
+        await client.query(`
+            ALTER TABLE projects ADD COLUMN IF NOT EXISTS position INT DEFAULT 0;
         `);
 
         // Check if default products have already been seeded once
@@ -804,7 +812,7 @@ async function getProducts() {
     if (usePostgres) {
         await checkInit();
         try {
-            const res = await pool.query('SELECT * FROM products');
+            const res = await pool.query('SELECT * FROM products ORDER BY position ASC, id ASC');
             return res.rows.map(row => {
                 let parsedImages = [];
                 try {
@@ -1054,7 +1062,7 @@ async function getProjects() {
     if (usePostgres) {
         await checkInit();
         try {
-            const res = await pool.query('SELECT * FROM projects');
+            const res = await pool.query('SELECT * FROM projects ORDER BY position ASC, id ASC');
             return res.rows.map(row => {
                 let parsedImages = [];
                 try {
@@ -1203,11 +1211,66 @@ async function deleteProject(projectId) {
     }
 }
 
+async function reorderProducts(ids) {
+    if (usePostgres) {
+        await checkInit();
+        const client = await pool.connect();
+        try {
+            await client.query('BEGIN');
+            for (let i = 0; i < ids.length; i++) {
+                await client.query('UPDATE products SET position = $1 WHERE id = $2', [i, ids[i]]);
+            }
+            await client.query('COMMIT');
+            return true;
+        } catch (err) {
+            await client.query('ROLLBACK');
+            console.error('Error reordering products in Postgres:', err);
+            throw err;
+        } finally {
+            client.release();
+        }
+    } else {
+        const db = readDb();
+        db.products = db.products || [];
+        db.products.sort((a, b) => ids.indexOf(a.id) - ids.indexOf(b.id));
+        writeDb(db);
+        return true;
+    }
+}
+
+async function reorderProjects(ids) {
+    if (usePostgres) {
+        await checkInit();
+        const client = await pool.connect();
+        try {
+            await client.query('BEGIN');
+            for (let i = 0; i < ids.length; i++) {
+                await client.query('UPDATE projects SET position = $1 WHERE id = $2', [i, ids[i]]);
+            }
+            await client.query('COMMIT');
+            return true;
+        } catch (err) {
+            await client.query('ROLLBACK');
+            console.error('Error reordering projects in Postgres:', err);
+            throw err;
+        } finally {
+            client.release();
+        }
+    } else {
+        const db = readDb();
+        db.projects = db.projects || [];
+        db.projects.sort((a, b) => ids.indexOf(a.id) - ids.indexOf(b.id));
+        writeDb(db);
+        return true;
+    }
+}
+
 module.exports = {
     getProjects,
     addProject,
     updateProject,
     deleteProject,
+    reorderProjects,
     getOrders,
     addOrder,
     updateOrder,
@@ -1218,6 +1281,7 @@ module.exports = {
     addProduct,
     updateProduct,
     deleteProduct,
+    reorderProducts,
     getDashboardPasswordHash,
     updateDashboardPassword,
     verifyDashboardPassword
