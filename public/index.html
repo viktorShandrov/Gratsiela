@@ -2107,11 +2107,11 @@ I believe that every work of art carries energy, history and message. For me, cr
                 <!-- Dynamically populated project images -->
             </div>
 
-            <div class="design-quotes-container" style="max-width: 900px; margin: 40px auto; display: grid; grid-template-columns: 1fr 1fr; gap: 30px; border-top: 1px solid rgba(234,221,203,0.15); border-bottom: 1px solid rgba(234,221,203,0.15); padding: 30px 0;">
-                <div class="design-quote-card" style="border-left: 2px solid var(--accent-gold); padding-left: 20px; display: flex; flex-direction: column; justify-content: center;">
+            <div class="design-quotes-container" id="gallery-quotes-container" style="max-width: 900px; margin: 40px auto; display: grid; grid-template-columns: 1fr 1fr; gap: 30px; border-top: 1px solid rgba(234,221,203,0.15); border-bottom: 1px solid rgba(234,221,203,0.15); padding: 30px 0;">
+                <div class="design-quote-card" id="gallery-quote-card-1" style="border-left: 2px solid var(--accent-gold); padding-left: 20px; display: flex; flex-direction: column; justify-content: center;">
                     <p class="design-quote-text" data-i18n="design-quote-1" style="font-family: var(--font-serif); font-size: 1.15rem; font-style: italic; line-height: 1.6; color: var(--text-champagne);"></p>
                 </div>
-                <div class="design-quote-card" style="border-left: 2px solid var(--accent-gold); padding-left: 20px; display: flex; flex-direction: column; justify-content: center;">
+                <div class="design-quote-card" id="gallery-quote-card-2" style="border-left: 2px solid var(--accent-gold); padding-left: 20px; display: flex; flex-direction: column; justify-content: center;">
                     <p class="design-quote-text" data-i18n="design-quote-2" style="font-family: var(--font-serif); font-size: 1.15rem; font-style: italic; line-height: 1.6; color: var(--text-champagne);"></p>
                 </div>
             </div>
@@ -2609,6 +2609,33 @@ I believe that every work of art carries energy, history and message. For me, cr
                 `;
                 gridEl.appendChild(item);
             });
+
+            // Distribute quotes dynamically based on the project type/title
+            const quotesContainer = document.getElementById('gallery-quotes-container');
+            const quoteCard1 = document.getElementById('gallery-quote-card-1');
+            const quoteCard2 = document.getElementById('gallery-quote-card-2');
+            
+            if (quotesContainer && quoteCard1 && quoteCard2) {
+                const titleLower = ((proj.title_en || '') + ' ' + (proj.title_bg || '')).toLowerCase();
+                const isApartment = titleLower.includes('apartment') || titleLower.includes('апартамент');
+                const isBeauty = titleLower.includes('beauty') || titleLower.includes('studio') || titleLower.includes('студио') || titleLower.includes('красота');
+                
+                if (isApartment) {
+                    quotesContainer.style.display = 'grid';
+                    quotesContainer.style.gridTemplateColumns = '1fr';
+                    quotesContainer.style.maxWidth = '600px';
+                    quoteCard1.style.display = 'none';
+                    quoteCard2.style.display = 'flex';
+                } else if (isBeauty) {
+                    quotesContainer.style.display = 'grid';
+                    quotesContainer.style.gridTemplateColumns = '1fr';
+                    quotesContainer.style.maxWidth = '600px';
+                    quoteCard1.style.display = 'flex';
+                    quoteCard2.style.display = 'none';
+                } else {
+                    quotesContainer.style.display = 'none';
+                }
+            }
 
             document.getElementById('project-gallery-modal').classList.add('active');
             document.body.classList.add('no-scroll');
