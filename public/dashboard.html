@@ -755,12 +755,12 @@
 
                 <div class="form-group">
                     <label for="prod-desc-en">Description (English)</label>
-                    <textarea id="prod-desc-en" rows="3" required></textarea>
+                    <textarea id="prod-desc-en" rows="3"></textarea>
                 </div>
 
                 <div class="form-group">
                     <label for="prod-desc-bg">Description (Bulgarian)</label>
-                    <textarea id="prod-desc-bg" rows="3" required></textarea>
+                    <textarea id="prod-desc-bg" rows="3"></textarea>
                 </div>
 
                 <div class="form-row">
@@ -1578,8 +1578,8 @@
                         <span class="badge ${typeBadge}">${prod.type}</span>
                         ${filterIndicator}
                     </td>
-                    <td style="max-width: 200px; color: rgba(234,221,203,0.7); font-size:0.8rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${prod.desc_en}</td>
-                    <td style="max-width: 200px; color: rgba(234,221,203,0.7); font-size:0.8rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${prod.desc_bg}</td>
+                    <td style="max-width: 200px; color: rgba(234,221,203,0.7); font-size:0.8rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${prod.desc_en || ''}</td>
+                    <td style="max-width: 200px; color: rgba(234,221,203,0.7); font-size:0.8rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${prod.desc_bg || ''}</td>
                     <td>
                         <div style="display: flex; gap: 4px; align-items: center;">
                             ${orderButtonsHTML}

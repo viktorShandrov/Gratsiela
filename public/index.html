@@ -2290,7 +2290,7 @@ I believe that every work of art carries energy, history and message. For me, cr
                 "foot-originals": "Оригинали",
                 "foot-prints": "Принтове",
                 "back-to-top": "Обратно горе",
-                "overlay-art-title": "Оригинално изкуство & Принтове",
+                "overlay-art-title": "Оригинално изкуство & Дигитални картини",
                 "overlay-art-subtitle": "където текстурата среща емоцията",
                 "tab-canvas": "Картини на платно",
                 "tab-prints": "Дигитални принтове",
@@ -2430,7 +2430,7 @@ I believe that every work of art carries energy, history and message. For me, cr
                 canvasProds.forEach(prod => {
                     const name = currentLanguage === 'bg' ? prod.name_bg : prod.name_en;
                     const escapedName = name.replace(/"/g, '&quot;').replace(/'/g, '&#39;');
-                    const desc = currentLanguage === 'bg' ? prod.desc_bg : prod.desc_en;
+                    const desc = (currentLanguage === 'bg' ? prod.desc_bg : prod.desc_en) || '';
                     const metaType = currentLanguage === 'bg' ? 'Акрил върху платно' : 'Acrylic on Canvas';
                     const filterStyle = prod.filterClass ? `filter: ${prod.filterClass};` : '';
 
@@ -2467,7 +2467,7 @@ I believe that every work of art carries energy, history and message. For me, cr
                 printProds.forEach(prod => {
                     const name = currentLanguage === 'bg' ? prod.name_bg : prod.name_en;
                     const escapedName = name.replace(/"/g, '&quot;').replace(/'/g, '&#39;');
-                    const desc = currentLanguage === 'bg' ? prod.desc_bg : prod.desc_en;
+                    const desc = (currentLanguage === 'bg' ? prod.desc_bg : prod.desc_en) || '';
                     const metaType = currentLanguage === 'bg' ? 'Дигитален принт' : 'Giclée Fine Art Print';
                     const filterStyle = prod.filterClass ? `filter: ${prod.filterClass};` : '';
 
@@ -2506,7 +2506,7 @@ I believe that every work of art carries energy, history and message. For me, cr
                     bookProds.forEach(book => {
                         const name = currentLanguage === 'bg' ? book.name_bg : book.name_en;
                         const escapedName = name.replace(/"/g, '&quot;').replace(/'/g, '&#39;');
-                        const desc = currentLanguage === 'bg' ? book.desc_bg : book.desc_en;
+                        const desc = (currentLanguage === 'bg' ? book.desc_bg : book.desc_en) || '';
                         const authorText = currentLanguage === 'bg' ? 'ОТ ГРАЦИЕЛА ИВАНОВА' : 'BY GRATSIELA IVANOVA';
 
                         bookContainer.innerHTML += `

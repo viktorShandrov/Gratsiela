@@ -1015,7 +1015,7 @@
 
             const name = currentLanguage === 'bg' ? prod.name_bg : prod.name_en;
             const escapedName = name.replace(/"/g, '&quot;').replace(/'/g, '&#39;');
-            const desc = currentLanguage === 'bg' ? prod.desc_bg : prod.desc_en;
+            const desc = (currentLanguage === 'bg' ? prod.desc_bg : prod.desc_en) || '';
             const symbolism = currentLanguage === 'bg' ? (prod.symbolism_bg || desc) : (prod.symbolism_en || desc);
             const materials = currentLanguage === 'bg' ? (prod.materials_bg || 'Маслени бои на платно') : (prod.materials_en || 'Oil on Canvas');
             const dimensions = prod.dimensions || (currentLanguage === 'bg' ? 'уточняват се при запитване' : 'TBD');
@@ -1119,7 +1119,7 @@
             suggestions.forEach(item => {
                 const name = currentLanguage === 'bg' ? item.name_bg : item.name_en;
                 const escapedName = name.replace(/"/g, '&quot;').replace(/'/g, '&#39;');
-                const desc = currentLanguage === 'bg' ? item.desc_bg : item.desc_en;
+                const desc = (currentLanguage === 'bg' ? item.desc_bg : item.desc_en) || '';
                 
                 let metaType = currentLanguage === 'bg' ? translations.bg["type-canvas"] : translations.en["type-canvas"];
                 if (item.type === 'print') {
