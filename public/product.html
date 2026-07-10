@@ -1047,6 +1047,16 @@
                 });
                 thumbnailsHtml += `</div>`;
             }
+            let symbolismHtml = '';
+            if (symbolism && symbolism.trim()) {
+                symbolismHtml = `
+                    <!-- Description / Symbolism -->
+                    <div class="product-symbolism">
+                        <h3 class="section-label">${currentLanguage === 'bg' ? translations.bg["symbolism-label"] : translations.en["symbolism-label"]}</h3>
+                        <p class="symbolism-text">${symbolism}</p>
+                    </div>
+                `;
+            }
 
             root.innerHTML = `
                 <!-- Image column -->
@@ -1078,11 +1088,7 @@
                         </div>
                     </div>
 
-                    <!-- Description / Symbolism -->
-                    <div class="product-symbolism">
-                        <h3 class="section-label">${currentLanguage === 'bg' ? translations.bg["symbolism-label"] : translations.en["symbolism-label"]}</h3>
-                        <p class="symbolism-text">${symbolism}</p>
-                    </div>
+                    ${symbolismHtml}
                 </div>
             `;
         }
