@@ -766,6 +766,10 @@
             display: grid;
         }
 
+        #artworks-prints-tab.active {
+            display: block;
+        }
+
         .portfolio-item {
             background-color: var(--bg-sidebar);
             border: 1px solid rgba(234, 221, 203, 0.1);
@@ -1980,8 +1984,21 @@
             <!-- Tab: Canvas (Dynamically Populated) -->
             <div class="portfolio-grid portfolio-tab-content active" id="artworks-canvas"></div>
 
-            <!-- Tab: Prints (Dynamically Populated) -->
-            <div class="portfolio-grid portfolio-tab-content" id="artworks-prints"></div>
+            <!-- Tab: Prints (Wrapper) -->
+            <div class="portfolio-tab-content" id="artworks-prints-tab">
+                <div class="prints-intro-text" data-i18n="prints-intro-text" style="max-width: 900px; margin: 0 auto 35px auto; text-align: center; color: rgba(234, 221, 203, 0.85); font-size: 1.05rem; line-height: 1.6;"></div>
+                
+                <div class="portfolio-grid" id="artworks-prints"></div>
+                
+                <div class="prints-instructions" style="max-width: 900px; margin: 50px auto 0 auto; border-top: 1px solid rgba(234, 221, 203, 0.15); padding-top: 30px; color: rgba(234, 221, 203, 0.85);">
+                    <h3 style="font-family: var(--font-serif); font-size: 1.4rem; color: var(--accent-gold); margin-bottom: 20px;" data-i18n="prints-instructions-title"></h3>
+                    <ol style="padding-left: 20px; line-height: 1.8; display: flex; flex-direction: column; gap: 15px;">
+                        <li data-i18n="prints-instruction-1"></li>
+                        <li data-i18n="prints-instruction-2"></li>
+                        <li data-i18n="prints-instruction-3"></li>
+                    </ol>
+                </div>
+            </div>
         </section>
 
         <!-- --- 2. BOOKS PORTFOLIO OVERLAY --- -->
@@ -2226,6 +2243,11 @@ I believe that every work of art carries energy, history and message. For me, cr
                 "overlay-art-subtitle": "where texture meets emotion",
                 "tab-canvas": "Canvas Paintings",
                 "tab-prints": "Digital Prints",
+                "prints-intro-text": "After purchasing a digital painting, you will receive a PDF of the digitally painted artwork.",
+                "prints-instructions-title": "Instructions:",
+                "prints-instruction-1": "Go to a print shop. Then send them the PDF file to print and bring your purchased digital painting to life.",
+                "prints-instruction-2": "You can visit a framing shop to have it framed.",
+                "prints-instruction-3": "Afterwards, the painting will be ready to be hung on a wall in your desired location.",
                 "overlay-book-title": "Art Book",
                 "overlay-design-title": "Design Portfolio",
                 "design-page-intro": "For me, design is the subtle point of confluence – function, comfort, and beauty. I believe that a truly good interior does not just look beautiful, but creates a feeling that one always wants to return to. Every project is a carefully crafted balance between aesthetics, practicality, and individuality. To me, details are not an afterthought – they are what gives character and turns a space into an experience. I create interiors with attention to the lifestyle, needs, and dreams of each client. Because a home and a workspace are not just places – they are a reflection of the person who lives and works in their space.",
@@ -2294,6 +2316,11 @@ I believe that every work of art carries energy, history and message. For me, cr
                 "overlay-art-subtitle": "където текстурата среща емоцията",
                 "tab-canvas": "Картини на платно",
                 "tab-prints": "Дигитални принтове",
+                "prints-intro-text": "След покупка на дигитална картина получавате pdf дигитално рисувана картина.",
+                "prints-instructions-title": "Напътствия:",
+                "prints-instruction-1": "Отидете в зона, в която предлагат услуги за печат. След това пратете на печатницата pdf форматът и така ще материализирате закупената дигитална картина.",
+                "prints-instruction-2": "Можете да посетите магазин за рамки, за да Ви я рамкират.",
+                "prints-instruction-3": "След това картината ще бъде готова за закачане на стена на желано от вас място.",
                 "overlay-book-title": "Книга",
                 "overlay-design-title": "Дизайн Портфолио",
                 "design-page-intro": "Дизайнът за мен е тънкият момент на съчетанието – функция, уют и красота. Вярвам, че истински добрият интериор не просто изглежда красиво, а създава усещане, към което човек винаги иска да се връща.",
@@ -2817,7 +2844,7 @@ I believe that every work of art carries energy, history and message. For me, cr
             const canvasBtn = document.getElementById('tab-btn-canvas');
             const printsBtn = document.getElementById('tab-btn-prints');
             const canvasContent = document.getElementById('artworks-canvas');
-            const printsContent = document.getElementById('artworks-prints');
+            const printsContent = document.getElementById('artworks-prints-tab');
 
             if (tabType === 'canvas') {
                 canvasBtn.classList.add('active');
