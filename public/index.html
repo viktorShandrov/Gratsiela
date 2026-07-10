@@ -2431,7 +2431,7 @@ I believe that every work of art carries energy, history and message. For me, cr
                     const name = currentLanguage === 'bg' ? prod.name_bg : prod.name_en;
                     const escapedName = name.replace(/"/g, '&quot;').replace(/'/g, '&#39;');
                     const desc = (currentLanguage === 'bg' ? prod.desc_bg : prod.desc_en) || '';
-                    const metaType = currentLanguage === 'bg' ? 'Акрил върху платно' : 'Acrylic on Canvas';
+                    const metaType = currentLanguage === 'bg' ? (prod.materials_bg || 'Акрил върху платно') : (prod.materials_en || 'Acrylic on Canvas');
                     const filterStyle = prod.filterClass ? `filter: ${prod.filterClass};` : '';
 
                     const maxLen = 100;
