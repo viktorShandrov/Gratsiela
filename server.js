@@ -368,7 +368,7 @@ app.post('/api/update-order-status', async (req, res) => {
         return res.status(401).json({ error: 'Unauthorized access' });
     }
 
-    const { orderId, paymentStatus, shippingStatus } = req.body;
+    const { orderId, paymentStatus, shippingStatus, archived } = req.body;
     if (!orderId) {
         return res.status(400).json({ error: 'Missing orderId' });
     }
@@ -377,6 +377,7 @@ app.post('/api/update-order-status', async (req, res) => {
         const updates = {};
         if (paymentStatus) updates.paymentStatus = paymentStatus;
         if (shippingStatus) updates.shippingStatus = shippingStatus;
+        if (archived !== undefined) updates.archived = archived;
 
         // Fetch original order to check if we are transitioning to Paid
         const orders = await db.getOrders();
@@ -390,14 +391,22 @@ app.post('/api/update-order-status', async (req, res) => {
         // Send email if transitioned to Paid
         const wasPaid = originalOrder && originalOrder.paymentStatus === 'Paid';
         const isPaidNow = updatedOrder.paymentStatus === 'Paid';
+        
+        console.log(`[Order Update] Order #${orderId}: paymentStatus went from '${originalOrder ? originalOrder.paymentStatus : 'unknown'}' to '${updatedOrder.paymentStatus}'`);
+        
         if (isPaidNow && !wasPaid) {
             const reqHost = req.get('host') || req.headers.host || `localhost:${PORT}`;
             const protocol = req.headers['x-forwarded-proto'] || 'http';
             const domainUrl = process.env.DOMAIN_URL || `${protocol}://${reqHost}`;
             
-            emailHelper.sendOrderNotificationEmail(updatedOrder, domainUrl).catch(err => {
-                console.error('Failed to send order notification email on manual payment update:', err);
-            });
+            console.log(`[Order Update] Dispatching confirmation email for order #${orderId} to customer ${updatedOrder.customerEmail}...`);
+            emailHelper.sendOrderNotificationEmail(updatedOrder, domainUrl)
+                .then(() => {
+                    console.log(`[Order Update] Email dispatched successfully for order #${orderId}`);
+                })
+                .catch(err => {
+                    console.error(`[Order Update] Email dispatch failed for order #${orderId}:`, err);
+                });
         }
 
         res.json({ success: true, order: updatedOrder });
@@ -412,7 +421,7 @@ app.post('/api/send-manual-link', async (req, res) => {
         return res.status(401).json({ error: 'Unauthorized access' });
     }
 
-    const { productId, customerEmail, customerName } = req.body;
+    const { productId, customerEmail, customerName, createOrder } = req.body;
     if (!productId || !customerEmail) {
         return res.status(400).json({ error: 'Missing required parameters' });
     }
@@ -435,21 +444,44 @@ app.post('/api/send-manual-link', async (req, res) => {
 
         const sessionId = 'manual_' + Date.now() + '_' + Math.floor(Math.random() * 1000000);
 
-        // Add a completed order to db
-        const order = await db.addOrder({
-            itemName: product.name_en,
-            itemPrice: priceStr,
-            priceCents: priceCents,
-            type: 'digital',
-            paymentMethod: 'Revolut (Manual)',
-            paymentStatus: 'Paid',
-            shippingStatus: 'Delivered',
-            customerName: customerName || 'Valued Customer',
-            customerEmail: customerEmail,
-            customerAddress: 'N/A',
-            customerPhone: 'N/A',
-            stripeSessionId: sessionId
-        });
+        let order;
+        const shouldCreateOrder = createOrder !== false;
+
+        if (shouldCreateOrder) {
+            // Add a completed order to db
+            order = await db.addOrder({
+                itemName: product.name_en,
+                itemPrice: priceStr,
+                priceCents: priceCents,
+                type: 'digital',
+                paymentMethod: 'Revolut (Manual)',
+                paymentStatus: 'Paid',
+                shippingStatus: 'Delivered',
+                customerName: customerName || 'Valued Customer',
+                customerEmail: customerEmail,
+                customerAddress: 'N/A',
+                customerPhone: 'N/A',
+                stripeSessionId: sessionId
+            });
+        } else {
+            // Create simulated order object to send email without database entry
+            order = {
+                id: 'manual_tmp_' + Date.now(),
+                date: new Date().toISOString(),
+                itemName: product.name_en,
+                itemPrice: priceStr,
+                priceCents: priceCents,
+                type: 'digital',
+                paymentMethod: 'Direct Send (No Order Logged)',
+                paymentStatus: 'Paid',
+                shippingStatus: 'Delivered',
+                customerName: customerName || 'Valued Customer',
+                customerEmail: customerEmail,
+                customerAddress: 'N/A',
+                customerPhone: 'N/A',
+                stripeSessionId: sessionId
+            };
+        }
 
         // Trigger the order notification email (which sends the download link)
         const reqHost = req.get('host') || req.headers.host || `localhost:${PORT}`;
@@ -458,7 +490,7 @@ app.post('/api/send-manual-link', async (req, res) => {
 
         await emailHelper.sendOrderNotificationEmail(order, domainUrl);
 
-        res.json({ success: true, orderId: order.id });
+        res.json({ success: true, orderId: shouldCreateOrder ? order.id : null });
     } catch (err) {
         console.error('Error sending manual digital link:', err);
         res.status(500).json({ error: 'Failed to send download link' });

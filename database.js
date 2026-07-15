@@ -355,6 +355,8 @@ async function initDb() {
             ALTER TABLE products ADD COLUMN IF NOT EXISTS digital_download_url VARCHAR(1000) DEFAULT '';
             ALTER TABLE products ADD COLUMN IF NOT EXISTS revolut_payment_url VARCHAR(1000) DEFAULT '';
             ALTER TABLE products ADD COLUMN IF NOT EXISTS position INT DEFAULT 0;
+            
+            ALTER TABLE orders ADD COLUMN IF NOT EXISTS archived BOOLEAN DEFAULT FALSE;
         `);
 
         // Settings table
@@ -521,7 +523,8 @@ async function getOrders() {
                 customerEmail: row.customer_email,
                 customerAddress: row.customer_address,
                 customerPhone: row.customer_phone,
-                stripeSessionId: row.stripe_session_id
+                stripeSessionId: row.stripe_session_id,
+                archived: row.archived === true
             }));
         } catch (err) {
             console.error('Error fetching orders from Postgres:', err);
@@ -548,20 +551,22 @@ async function addOrder(orderData) {
         customerEmail: orderData.customerEmail,
         customerAddress: orderData.customerAddress || 'N/A',
         customerPhone: orderData.customerPhone,
-        stripeSessionId: orderData.stripeSessionId || null
+        stripeSessionId: orderData.stripeSessionId || null,
+        archived: orderData.archived === true || false
     };
 
     if (usePostgres) {
         await checkInit();
         try {
             const query = `
-                INSERT INTO orders (id, date, item_name, item_price, price_cents, type, payment_method, payment_status, shipping_status, customer_name, customer_email, customer_address, customer_phone, stripe_session_id)
-                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
+                INSERT INTO orders (id, date, item_name, item_price, price_cents, type, payment_method, payment_status, shipping_status, customer_name, customer_email, customer_address, customer_phone, stripe_session_id, archived)
+                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
             `;
             await pool.query(query, [
                 newOrder.id, newOrder.date, newOrder.itemName, newOrder.itemPrice, newOrder.priceCents, newOrder.type,
                 newOrder.paymentMethod, newOrder.paymentStatus, newOrder.shippingStatus, newOrder.customerName,
-                newOrder.customerEmail, newOrder.customerAddress, newOrder.customerPhone, newOrder.stripeSessionId
+                newOrder.customerEmail, newOrder.customerAddress, newOrder.customerPhone, newOrder.stripeSessionId,
+                newOrder.archived
             ]);
             return newOrder;
         } catch (err) {
@@ -592,6 +597,10 @@ async function updateOrder(orderId, updates) {
                 keys.push(`shipping_status = $${i++}`);
                 values.push(updates.shippingStatus);
             }
+            if (updates.archived !== undefined) {
+                keys.push(`archived = $${i++}`);
+                values.push(updates.archived);
+            }
 
             if (keys.length === 0) return null;
 
@@ -620,7 +629,8 @@ async function updateOrder(orderId, updates) {
                 customerEmail: row.customer_email,
                 customerAddress: row.customer_address,
                 customerPhone: row.customer_phone,
-                stripeSessionId: row.stripe_session_id
+                stripeSessionId: row.stripe_session_id,
+                archived: row.archived === true
             };
         } catch (err) {
             console.error('Error updating order in Postgres:', err);

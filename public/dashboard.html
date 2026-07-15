@@ -594,8 +594,13 @@
 
         <!-- TAB SECTION 1: ORDERS LOG -->
         <section class="dash-section active" id="sec-orders">
-            <h2 class="section-title">Order Records Log</h2>
-            <br>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
+                <h2 class="section-title" style="margin: 0;">Order Records Log</h2>
+                <label style="display: flex; align-items: center; gap: 8px; color: var(--text-champagne); font-size: 0.85rem; cursor: pointer; user-select: none;">
+                    <input type="checkbox" id="show-archived-orders-chk" onchange="toggleShowArchived()" style="width: auto; margin: 0; cursor: pointer;">
+                    Show Archived Orders
+                </label>
+            </div>
             <div class="table-responsive">
                 <table>
                     <thead>
@@ -759,6 +764,11 @@
                 <div class="form-group" style="margin-bottom: 15px;">
                     <label for="send-link-name" style="display: block; margin-bottom: 5px; font-size: 0.85rem; color: rgba(234, 221, 203, 0.7);">Customer Name (Optional)</label>
                     <input type="text" id="send-link-name" placeholder="Valued Customer" style="width: 100%; padding: 8px 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(234, 221, 203, 0.15); color: #fff; border-radius: 4px; box-sizing: border-box;">
+                </div>
+                
+                <div class="form-group" style="margin-bottom: 15px; display: flex; align-items: center; gap: 8px;">
+                    <input type="checkbox" id="send-link-create-order" checked style="width: auto; margin: 0; cursor: pointer;">
+                    <label for="send-link-create-order" style="font-size: 0.82rem; color: rgba(234, 221, 203, 0.7); cursor: pointer; user-select: none;">Log this as a new paid order in database</label>
                 </div>
                 
                 <div style="display: flex; gap: 10px; margin-top: 20px;">
@@ -998,73 +1008,117 @@
                 document.getElementById('stat-card-rev').innerText = `€${parseFloat(data.metrics.paidRevenue).toLocaleString()}`;
                 document.getElementById('stat-cod-rev').innerText = `€${parseFloat(data.metrics.projectedCodRevenue).toLocaleString()}`;
 
-                const tbody = document.getElementById('orders-table-body');
-                tbody.innerHTML = '';
-
-                if (data.orders.length === 0) {
-                    tbody.innerHTML = `
-                        <tr>
-                            <td colspan="8" style="text-align: center; padding: 40px; color: rgba(234, 221, 203, 0.4);">
-                                No order records found.
-                            </td>
-                        </tr>
-                    `;
-                    return;
-                }
-
-                data.orders.forEach(order => {
-                    const orderDate = new Date(order.date).toLocaleDateString('bg-BG', {
-                        year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
-                    });
-
-                    const payBadgeClass = order.paymentStatus === 'Paid' ? 'badge-paid' : (order.paymentStatus === 'Pending COD' ? 'badge-pending' : 'badge-unpaid');
-                    const shipBadgeClass = order.shippingStatus === 'Shipped' ? 'badge-shipped' : 'badge-pending';
-                    const typeBadgeClass = order.type === 'digital' ? 'badge-print' : 'badge-canvas';
-
-                    let actionButtonsHTML = '';
-                    if (order.paymentStatus !== 'Paid') {
-                        actionButtonsHTML += `<button class="btn-table-action" onclick="updateOrderStatus('${order.id}', 'Paid', null)">Mark Paid</button>`;
-                    }
-                    if (order.type !== 'digital' && order.shippingStatus !== 'Shipped') {
-                        actionButtonsHTML += `<button class="btn-table-action" onclick="updateOrderStatus('${order.id}', null, 'Shipped')">Mark Shipped</button>`;
-                    }
-                    if (!actionButtonsHTML) {
-                        actionButtonsHTML = '<span style="color: rgba(234, 221, 203, 0.4); font-size: 0.75rem;">Completed</span>';
-                    }
-
-                    const tr = document.createElement('tr');
-                    tr.style.cursor = 'pointer';
-                    tr.title = 'Click to view full details';
-                    tr.onclick = (e) => {
-                        if (e.target.closest('button') || e.target.tagName === 'BUTTON') return;
-                        openOrderDetailsModal(order.id);
-                    };
-                    tr.innerHTML = `
-                        <td>
-                            <div style="font-weight: 500;">${orderDate}</div>
-                            <div style="font-size: 0.7rem; color: var(--accent-gold); margin-top: 3px; font-family: monospace;">${order.id}</div>
-                        </td>
-                        <td style="font-weight: 500; font-family: var(--font-serif); font-size: 0.95rem;">${order.itemName}</td>
-                        <td>
-                            <div style="font-size: 0.8rem; color: rgba(234, 221, 203, 0.7); line-height: 1.4;">
-                                <div style="font-weight:600; color: var(--text-champagne);">${order.customerName}</div>
-                                <div>✉ ${order.customerEmail}</div>
-                                <div>☎ ${order.customerPhone}</div>
-                            </div>
-                        </td>
-                        <td style="color: rgba(234, 221, 203, 0.85);">${order.customerAddress}</td>
-                        <td>
-                            <span class="badge ${typeBadgeClass}">${order.type}</span>
-                            <div style="font-size: 0.7rem; color: rgba(234, 221, 203, 0.4); margin-top: 5px;">${order.paymentMethod}</div>
-                        </td>
-                        <td><span class="badge ${payBadgeClass}">${order.paymentStatus}</span></td>
-                        <td><span class="badge ${shipBadgeClass}">${order.shippingStatus}</span></td>
-                        <td>${actionButtonsHTML}</td>
-                    `;
-                    tbody.appendChild(tr);
-                });
+                renderOrdersTable(data.orders);
             })
             .catch(err => console.error('Error fetching dashboard orders:', err));
+        }
+
+        let showArchivedOrders = false;
+        function toggleShowArchived() {
+            showArchivedOrders = document.getElementById('show-archived-orders-chk').checked;
+            renderOrdersTable(currentOrders);
+        }
+
+        function archiveOrder(orderId, isArchived) {
+            fetch('/api/update-order-status', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ orderId, archived: isArchived })
+            })
+            .then(res => {
+                if (res.ok) {
+                    loadDashboardData(token);
+                } else {
+                    alert('Archive update failed');
+                }
+            })
+            .catch(err => console.error(err));
+        }
+
+        function renderOrdersTable(orders) {
+            const tbody = document.getElementById('orders-table-body');
+            tbody.innerHTML = '';
+
+            const filteredOrders = orders.filter(o => showArchivedOrders ? true : !o.archived);
+
+            if (filteredOrders.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="8" style="text-align: center; padding: 40px; color: rgba(234, 221, 203, 0.4);">
+                            No orders found.
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            filteredOrders.forEach(order => {
+                const orderDate = new Date(order.date).toLocaleDateString('bg-BG', {
+                    year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
+                });
+
+                const payBadgeClass = order.paymentStatus === 'Paid' ? 'badge-paid' : (order.paymentStatus === 'Pending COD' ? 'badge-pending' : 'badge-unpaid');
+                const shipBadgeClass = order.type === 'digital' ? 'badge-shipped' : (order.shippingStatus === 'Shipped' ? 'badge-shipped' : 'badge-pending');
+                const typeBadgeClass = order.type === 'digital' ? 'badge-print' : 'badge-canvas';
+
+                let actionButtonsHTML = '';
+                if (order.paymentStatus !== 'Paid') {
+                    actionButtonsHTML += `<button class="btn-table-action" onclick="updateOrderStatus('${order.id}', 'Paid', null)">Mark Paid</button>`;
+                }
+                if (order.type !== 'digital' && order.shippingStatus !== 'Shipped') {
+                    actionButtonsHTML += `<button class="btn-table-action" onclick="updateOrderStatus('${order.id}', null, 'Shipped')">Mark Shipped</button>`;
+                }
+                
+                // Add Archive / Unarchive button
+                if (order.archived) {
+                    actionButtonsHTML += `<button class="btn-table-action" style="background: rgba(234, 221, 203, 0.15); color: rgba(234, 221, 203, 0.85);" onclick="archiveOrder('${order.id}', false)">Unarchive</button>`;
+                } else {
+                    actionButtonsHTML += `<button class="btn-table-action" style="background: rgba(255, 51, 51, 0.15); color: #ff9999;" onclick="archiveOrder('${order.id}', true)">Archive</button>`;
+                }
+
+                const tr = document.createElement('tr');
+                tr.style.cursor = 'pointer';
+                tr.title = 'Click to view full details';
+                tr.onclick = (e) => {
+                    if (e.target.closest('button') || e.target.tagName === 'BUTTON') return;
+                    openOrderDetailsModal(order.id);
+                };
+                
+                if (order.archived) {
+                    tr.style.opacity = '0.55';
+                }
+
+                tr.innerHTML = `
+                    <td>
+                        <div style="font-weight: 500;">${orderDate}</div>
+                        <div style="font-size: 0.7rem; color: var(--accent-gold); margin-top: 3px; font-family: monospace;">${order.id}</div>
+                    </td>
+                    <td style="font-weight: 500; font-family: var(--font-serif); font-size: 0.95rem;">${order.itemName}</td>
+                    <td>
+                        <div style="font-size: 0.8rem; color: rgba(234, 221, 203, 0.7); line-height: 1.4;">
+                            <div style="font-weight:600; color: var(--text-champagne);">${order.customerName}</div>
+                            <div>✉ ${order.customerEmail}</div>
+                            <div>☎ ${order.customerPhone}</div>
+                        </div>
+                    </td>
+                    <td style="color: rgba(234, 221, 203, 0.85);">${order.customerAddress}</td>
+                    <td>
+                        <span class="badge ${typeBadgeClass}">${order.type}</span>
+                        <div style="font-size: 0.7rem; color: rgba(234, 221, 203, 0.4); margin-top: 5px;">${order.paymentMethod}</div>
+                    </td>
+                    <td><span class="badge ${payBadgeClass}">${order.paymentStatus}</span></td>
+                    <td><span class="badge ${shipBadgeClass}">${order.type === 'digital' ? 'N/A' : order.shippingStatus}</span></td>
+                    <td>
+                        <div style="display: flex; gap: 4px; align-items: center; flex-wrap: wrap;">
+                            ${actionButtonsHTML}
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
         }
 
         function openOrderDetailsModal(orderId) {
@@ -1295,12 +1349,13 @@
             const prodId = document.getElementById('send-link-prod-id').value;
             const email = document.getElementById('send-link-email').value.trim();
             const name = document.getElementById('send-link-name').value.trim();
+            const createOrder = document.getElementById('send-link-create-order').checked;
             const statusDiv = document.getElementById('send-link-status');
             
             statusDiv.style.display = 'block';
             statusDiv.innerText = 'Sending email...';
             statusDiv.style.color = 'var(--accent-gold)';
-
+ 
             const token = localStorage.getItem('artist_token');
             try {
                 const response = await fetch('/api/send-manual-link', {
@@ -1309,16 +1364,18 @@
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${token}`
                     },
-                    body: JSON.stringify({ productId: prodId, customerEmail: email, customerName: name })
+                    body: JSON.stringify({ productId: prodId, customerEmail: email, customerName: name, createOrder })
                 });
-
+ 
                 const data = await response.json();
                 if (response.ok) {
                     statusDiv.innerText = '✓ Download link emailed successfully!';
                     statusDiv.style.color = '#2ecc71';
                     setTimeout(() => {
                         closeSendLinkModal();
-                        loadDashboardData(token);
+                        if (createOrder) {
+                            loadDashboardData(token);
+                        }
                     }, 1500);
                 } else {
                     statusDiv.innerText = `Error: ${data.error || 'Failed to send'}`;
