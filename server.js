@@ -116,6 +116,12 @@ app.post('/api/create-checkout-session', async (req, res) => {
             checkoutUrl = product.revolutPaymentUrl;
             paymentMethodStr = 'Revolut';
         } else {
+            // Revolut payment link is required. Return an error since it is not configured.
+            return res.status(400).json({ 
+                error: 'Revolut payment link is not configured for this product yet. Please contact the artist.' 
+            });
+
+            /* Keep Stripe checkout fallback code for reference:
             sessionId = 'local_session_' + Date.now();
             checkoutUrl = `${domainUrl}/success.html?session_id=${sessionId}`;
 
@@ -145,6 +151,7 @@ app.post('/api/create-checkout-session', async (req, res) => {
             } else {
                 console.warn('Stripe key is placeholder. Falling back to local simulated payment checkout URL.');
             }
+            */
         }
 
         // Save order in db

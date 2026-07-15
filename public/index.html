@@ -2938,19 +2938,24 @@ I believe that every work of art carries energy, history and message. For me, cr
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
                 })
-                .then(res => {
-                    if (!res.ok) throw new Error('Stripe session creation failed');
+                .then(async res => {
+                    if (!res.ok) {
+                        const data = await res.json().catch(() => ({}));
+                        throw new Error(data.error || 'Failed to initialize payment session.');
+                    }
                     return res.json();
                 })
                 .then(data => {
                     document.getElementById('checkout-spinner').style.display = 'none';
-                    // Redirect to Stripe Checkout Page
+                    // Redirect to Revolut Checkout Page
                     window.location.href = data.url;
                 })
                 .catch(err => {
                     console.error(err);
                     document.getElementById('checkout-spinner').style.display = 'none';
-                    alert(currentLanguage === 'bg' ? 'Неуспешна връзка с разплащането. Моля опитайте отново.' : 'Failed to connect to card checkout. Please try again.');
+                    alert(currentLanguage === 'bg' 
+                        ? 'Продуктът не е наличен за плащане с карта в момента. Моля, изберете наложен платеж или се свържете с автора.'
+                        : err.message);
                 });
             } else {
                 // Cash on Delivery
