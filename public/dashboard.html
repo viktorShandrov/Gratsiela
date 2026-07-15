@@ -628,6 +628,31 @@
                 <button class="btn-action" style="padding: 10px 20px; font-size: 0.75rem;" onclick="openProductModal()">+ Add Product</button>
             </div>
             
+            <h3 style="color: var(--accent-gold); margin-top: 25px; margin-bottom: 10px; font-size: 1.1rem; letter-spacing: 1px;">DIGITAL PRODUCTS</h3>
+            <div class="table-responsive" style="margin-bottom: 40px;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Image</th>
+                            <th>Product Name (EN / BG)</th>
+                            <th>Price</th>
+                            <th>Category</th>
+                            <th>Description (EN)</th>
+                            <th>Description (BG)</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="digital-products-table-body">
+                        <tr>
+                            <td colspan="7" style="text-align: center; padding: 40px; color: rgba(234, 221, 203, 0.4);">
+                                Loading digital products...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3 style="color: var(--accent-gold); margin-top: 25px; margin-bottom: 10px; font-size: 1.1rem; letter-spacing: 1px;">PHYSICAL PRODUCTS</h3>
             <div class="table-responsive">
                 <table>
                     <thead>
@@ -641,10 +666,10 @@
                             <th>Actions</th>
                         </tr>
                     </thead>
-                    <tbody id="products-table-body">
+                    <tbody id="physical-products-table-body">
                         <tr>
                             <td colspan="7" style="text-align: center; padding: 40px; color: rgba(234, 221, 203, 0.4);">
-                                Loading products...
+                                Loading physical products...
                             </td>
                         </tr>
                     </tbody>
@@ -1589,24 +1614,53 @@
         }
 
         // --- REORDER OPERATIONS ---
-        async function moveProductUp(index) {
-            if (index <= 0) return;
-            const temp = currentProducts[index];
-            currentProducts[index] = currentProducts[index - 1];
-            currentProducts[index - 1] = temp;
+        // --- REORDER OPERATIONS ---
+        async function moveProductUpInCategory(prodId, isDigital) {
+            const index = currentProducts.findIndex(p => p.id === prodId);
+            if (index === -1) return;
             
-            renderProductsTable(currentProducts);
-            await saveProductOrder();
+            // Find the previous product of the same category
+            let prevIndex = -1;
+            for (let i = index - 1; i >= 0; i--) {
+                const isItemDigital = (currentProducts[i].type === 'print' || currentProducts[i].type === 'digital_book' || !!currentProducts[i].digitalDownloadUrl);
+                if (isItemDigital === isDigital) {
+                    prevIndex = i;
+                    break;
+                }
+            }
+            
+            if (prevIndex !== -1) {
+                const temp = currentProducts[index];
+                currentProducts[index] = currentProducts[prevIndex];
+                currentProducts[prevIndex] = temp;
+                
+                renderProductsTable(currentProducts);
+                await saveProductOrder();
+            }
         }
 
-        async function moveProductDown(index) {
-            if (index >= currentProducts.length - 1) return;
-            const temp = currentProducts[index];
-            currentProducts[index] = currentProducts[index + 1];
-            currentProducts[index + 1] = temp;
+        async function moveProductDownInCategory(prodId, isDigital) {
+            const index = currentProducts.findIndex(p => p.id === prodId);
+            if (index === -1) return;
             
-            renderProductsTable(currentProducts);
-            await saveProductOrder();
+            // Find the next product of the same category
+            let nextIndex = -1;
+            for (let i = index + 1; i < currentProducts.length; i++) {
+                const isItemDigital = (currentProducts[i].type === 'print' || currentProducts[i].type === 'digital_book' || !!currentProducts[i].digitalDownloadUrl);
+                if (isItemDigital === isDigital) {
+                    nextIndex = i;
+                    break;
+                }
+            }
+            
+            if (nextIndex !== -1) {
+                const temp = currentProducts[index];
+                currentProducts[index] = currentProducts[nextIndex];
+                currentProducts[nextIndex] = temp;
+                
+                renderProductsTable(currentProducts);
+                await saveProductOrder();
+            }
         }
 
         async function saveProductOrder() {
@@ -1626,37 +1680,65 @@
         }
 
         function renderProductsTable(products) {
-            const tbody = document.getElementById('products-table-body');
-            tbody.innerHTML = '';
+            const digitalTbody = document.getElementById('digital-products-table-body');
+            const physicalTbody = document.getElementById('physical-products-table-body');
+            
+            digitalTbody.innerHTML = '';
+            physicalTbody.innerHTML = '';
 
-            if (products.length === 0) {
-                tbody.innerHTML = `
+            const digitalProducts = products.filter(p => p.type === 'print' || p.type === 'digital_book' || !!p.digitalDownloadUrl);
+            const physicalProducts = products.filter(p => !(p.type === 'print' || p.type === 'digital_book' || !!p.digitalDownloadUrl));
+
+            // Render Digital Table
+            if (digitalProducts.length === 0) {
+                digitalTbody.innerHTML = `
                     <tr>
                         <td colspan="7" style="text-align: center; padding: 40px; color: rgba(234, 221, 203, 0.4);">
-                            No products registered in the database.
+                            No digital products registered in the database.
                         </td>
                     </tr>
                 `;
-                return;
+            } else {
+                renderCategoryRows(digitalProducts, digitalTbody, true);
             }
 
-            products.forEach((prod, index) => {
+            // Render Physical Table
+            if (physicalProducts.length === 0) {
+                physicalTbody.innerHTML = `
+                    <tr>
+                        <td colspan="7" style="text-align: center; padding: 40px; color: rgba(234, 221, 203, 0.4);">
+                            No physical products registered in the database.
+                        </td>
+                    </tr>
+                `;
+            } else {
+                renderCategoryRows(physicalProducts, physicalTbody, false);
+            }
+        }
+
+        function renderCategoryRows(items, tbody, isDigital) {
+            items.forEach((prod, catIndex) => {
                 const typeBadge = prod.type === 'canvas' ? 'badge-canvas' : (prod.type === 'print' ? 'badge-print' : 'badge-book');
                 const filterIndicator = prod.filterClass ? `<div style="font-size:0.65rem; color: var(--accent-pink); font-family:monospace; margin-top:5px;">${prod.filterClass}</div>` : '';
                 
                 let orderButtonsHTML = '';
-                if (index > 0) {
-                    orderButtonsHTML += `<button class="btn-table-action btn-table-reorder" onclick="moveProductUp(${index})">▲</button>`;
+                if (catIndex > 0) {
+                    orderButtonsHTML += `<button class="btn-table-action btn-table-reorder" onclick="moveProductUpInCategory('${prod.id}', ${isDigital})">▲</button>`;
                 } else {
                     orderButtonsHTML += `<button class="btn-table-action btn-table-reorder disabled" style="opacity: 0.2; cursor: default;" disabled>▲</button>`;
                 }
-                if (index < products.length - 1) {
-                    orderButtonsHTML += `<button class="btn-table-action btn-table-reorder" onclick="moveProductDown(${index})">▼</button>`;
+                if (catIndex < items.length - 1) {
+                    orderButtonsHTML += `<button class="btn-table-action btn-table-reorder" onclick="moveProductDownInCategory('${prod.id}', ${isDigital})">▼</button>`;
                 } else {
                     orderButtonsHTML += `<button class="btn-table-action btn-table-reorder disabled" style="opacity: 0.2; cursor: default;" disabled>▼</button>`;
                 }
 
+                const linkWarning = !prod.revolutPaymentUrl ? '<span style="display:inline-block; margin-top:5px; padding:3px 6px; font-size:0.65rem; font-weight:bold; background:#5c1d1d; color:#ff9999; border-radius:3px; border:1px solid #993333;">⚠️ NO REVOLUT LINK</span>' : '';
+                const warningStyle = !prod.revolutPaymentUrl ? 'background: rgba(255, 51, 51, 0.05);' : '';
+
                 const tr = document.createElement('tr');
+                if (warningStyle) tr.setAttribute('style', warningStyle);
+                
                 tr.innerHTML = `
                     <td>
                         <div class="product-img-cell" style="background-image: url('${prod.image}'); ${prod.filterClass ? 'filter:' + prod.filterClass : ''}"></div>
@@ -1665,6 +1747,7 @@
                         <div style="font-weight:600;">${prod.name_en}</div>
                         <div style="color: rgba(234,221,203,0.5); font-size:0.75rem; margin-top:2px;">${prod.name_bg}</div>
                         <div style="font-size:0.65rem; color: var(--accent-gold); font-family:monospace; margin-top:4px;">ID: ${prod.id}</div>
+                        ${linkWarning}
                     </td>
                     <td style="font-weight: 600; color: var(--accent-gold);">${prod.price}</td>
                     <td>
