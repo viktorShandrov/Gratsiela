@@ -1,4 +1,5 @@
 const nodemailer = require('nodemailer');
+const db = require('./database');
 require('dotenv').config();
 
 // Create SMTP transporter
@@ -73,7 +74,27 @@ async function sendOrderNotificationEmail(order, hostUrl = null) {
     let digitalSectionText = '';
 
     if (order.type === 'digital' && order.paymentStatus === 'Paid') {
-        const downloadUrl = `${domainUrl}/api/download?session_id=${order.stripeSessionId}`;
+        let downloadUrl = '';
+        
+        try {
+            const products = await db.getProducts();
+            const cleanItemName = order.itemName.toLowerCase().trim();
+            const product = products.find(p => 
+                p.name_en.toLowerCase().trim() === cleanItemName || 
+                p.name_bg.toLowerCase().trim() === cleanItemName
+            );
+            if (product && product.digitalDownloadUrl) {
+                downloadUrl = product.digitalDownloadUrl;
+            }
+        } catch (err) {
+            console.error('Failed to look up product digitalDownloadUrl in email.js:', err);
+        }
+
+        // Fallback to local server streaming URL if product link is not configured
+        if (!downloadUrl) {
+            downloadUrl = `${domainUrl}/api/download?session_id=${order.stripeSessionId}`;
+        }
+
         digitalSectionHtml = `
             <div style="margin-top: 20px; padding: 15px; background-color: #f5fbf6; border-left: 4px solid #2e7d32; border-radius: 4px;">
                 <h3 style="color: #2e7d32; margin-top: 0; margin-bottom: 10px;">Digital Download Ready!</h3>

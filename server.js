@@ -378,9 +378,26 @@ app.post('/api/update-order-status', async (req, res) => {
         if (paymentStatus) updates.paymentStatus = paymentStatus;
         if (shippingStatus) updates.shippingStatus = shippingStatus;
 
+        // Fetch original order to check if we are transitioning to Paid
+        const orders = await db.getOrders();
+        const originalOrder = orders.find(o => o.id === orderId);
+
         const updatedOrder = await db.updateOrder(orderId, updates);
         if (!updatedOrder) {
             return res.status(404).json({ error: 'Order not found' });
+        }
+
+        // Send email if transitioned to Paid
+        const wasPaid = originalOrder && originalOrder.paymentStatus === 'Paid';
+        const isPaidNow = updatedOrder.paymentStatus === 'Paid';
+        if (isPaidNow && !wasPaid) {
+            const reqHost = req.get('host') || req.headers.host || `localhost:${PORT}`;
+            const protocol = req.headers['x-forwarded-proto'] || 'http';
+            const domainUrl = process.env.DOMAIN_URL || `${protocol}://${reqHost}`;
+            
+            emailHelper.sendOrderNotificationEmail(updatedOrder, domainUrl).catch(err => {
+                console.error('Failed to send order notification email on manual payment update:', err);
+            });
         }
 
         res.json({ success: true, order: updatedOrder });

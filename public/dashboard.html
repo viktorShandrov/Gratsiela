@@ -1025,7 +1025,7 @@
                     if (order.paymentStatus !== 'Paid') {
                         actionButtonsHTML += `<button class="btn-table-action" onclick="updateOrderStatus('${order.id}', 'Paid', null)">Mark Paid</button>`;
                     }
-                    if (order.shippingStatus !== 'Shipped') {
+                    if (order.type !== 'digital' && order.shippingStatus !== 'Shipped') {
                         actionButtonsHTML += `<button class="btn-table-action" onclick="updateOrderStatus('${order.id}', null, 'Shipped')">Mark Shipped</button>`;
                     }
                     if (!actionButtonsHTML) {
@@ -1120,7 +1120,7 @@
                     <div><span class="badge ${order.paymentStatus === 'Paid' ? 'badge-paid' : (order.paymentStatus === 'Pending COD' ? 'badge-pending' : 'badge-unpaid')}">${order.paymentStatus}</span></div>
                     
                     <div style="color: var(--accent-gold); font-weight: 600;">Shipping Status:</div>
-                    <div><span class="badge ${order.shippingStatus === 'Shipped' ? 'badge-shipped' : 'badge-pending'}">${order.shippingStatus}</span></div>
+                    <div><span class="badge ${order.type === 'digital' ? 'badge-shipped' : (order.shippingStatus === 'Shipped' ? 'badge-shipped' : 'badge-pending')}">${order.type === 'digital' ? 'N/A' : order.shippingStatus}</span></div>
                     
                     <div style="color: var(--accent-gold); font-weight: 600;">Stripe Session:</div>
                     <div style="font-family: monospace; font-size: 0.8rem; word-break: break-all;">${order.stripeSessionId || 'None (Cash on Delivery)'}</div>
