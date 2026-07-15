@@ -400,13 +400,13 @@ app.post('/api/update-order-status', async (req, res) => {
             const domainUrl = process.env.DOMAIN_URL || `${protocol}://${reqHost}`;
             
             console.log(`[Order Update] Dispatching confirmation email for order #${orderId} to customer ${updatedOrder.customerEmail}...`);
-            emailHelper.sendOrderNotificationEmail(updatedOrder, domainUrl)
-                .then(() => {
-                    console.log(`[Order Update] Email dispatched successfully for order #${orderId}`);
-                })
-                .catch(err => {
-                    console.error(`[Order Update] Email dispatch failed for order #${orderId}:`, err);
-                });
+            try {
+                await emailHelper.sendOrderNotificationEmail(updatedOrder, domainUrl);
+                console.log(`[Order Update] Email dispatched successfully for order #${orderId}`);
+            } catch (err) {
+                console.error(`[Order Update] Email dispatch failed for order #${orderId}:`, err);
+                return res.status(500).json({ error: `Order marked as Paid, but email failed: ${err.message || 'Check SMTP configuration'}` });
+            }
         }
 
         res.json({ success: true, order: updatedOrder });

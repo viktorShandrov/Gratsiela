@@ -112,20 +112,8 @@ ${downloadUrl}
     }
 
     if (!process.env.SMTP_USER || !process.env.SMTP_PASS) {
-        console.warn('--------------------------------------------------');
-        console.warn('⚠️ SMTP credentials are not configured in .env!');
-        console.warn('Simulating customer and admin order emails:');
-        console.warn(`[CUSTOMER EMAIL] To: ${order.customerEmail}`);
-        console.warn(`Subject: Order Confirmation: #${order.id}`);
-        console.warn(`Product: ${order.itemName} (${order.itemPrice})`);
-        if (order.type === 'digital' && order.paymentStatus === 'Paid') {
-            console.warn(`Download Link: ${domainUrl}/api/download?session_id=${order.stripeSessionId}`);
-        }
-        console.warn(`[ADMIN EMAIL] To: ${recipientEmail}`);
-        console.warn(`Subject: New Order Received: #${order.id}`);
-        console.warn(`Customer: ${order.customerName} <${order.customerEmail}> (${order.customerPhone})`);
-        console.warn('--------------------------------------------------');
-        return true; // Return true as a fallback success indicator for testing
+        console.warn('⚠️ SMTP credentials (SMTP_USER/SMTP_PASS) are not configured!');
+        throw new Error('SMTP credentials (SMTP_USER and SMTP_PASS) are missing from your Vercel/hosting environment variables.');
     }
 
     // 1. CUSTOMER ORDER CONFIRMATION EMAIL
