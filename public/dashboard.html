@@ -1202,6 +1202,8 @@
             if (payStatus) bodyObj.paymentStatus = payStatus;
             if (shipStatus) bodyObj.shippingStatus = shipStatus;
 
+            console.log('[Browser Status Update Request]', bodyObj);
+
             fetch('/api/update-order-status', {
                 method: 'POST',
                 headers: {
@@ -1210,14 +1212,18 @@
                 },
                 body: JSON.stringify(bodyObj)
             })
-            .then(res => {
+            .then(async res => {
+                const data = await res.json().catch(() => ({}));
+                console.log('[Browser Status Update Response]', { status: res.status, ok: res.ok, data });
                 if (res.ok) {
                     loadDashboardData(token);
                 } else {
-                    alert('Status update failed');
+                    alert('Status update failed: ' + (data.error || 'Unknown error'));
                 }
             })
-            .catch(err => console.error(err));
+            .catch(err => {
+                console.error('[Browser Status Update Error]', err);
+            });
         }
 
         // --- PRODUCT INVENTORY CRUD LOAD ---
