@@ -100,34 +100,51 @@ app.post('/api/create-checkout-session', async (req, res) => {
         const protocol = req.headers['x-forwarded-proto'] || 'http';
         const domainUrl = process.env.DOMAIN_URL || `${protocol}://${reqHost}`;
 
-        let sessionId = 'local_session_' + Date.now();
-        let checkoutUrl = `${domainUrl}/success.html?session_id=${sessionId}`;
+        // Look up product to check if it has a Revolut payment URL
+        const products = await db.getProducts();
+        const product = products.find(p => 
+            p.name_en.toLowerCase().trim() === itemName.toLowerCase().trim() || 
+            p.name_bg.toLowerCase().trim() === itemName.toLowerCase().trim()
+        );
 
-        // Create actual Stripe checkout session if key is configured
-        if (stripe) {
-            const session = await stripe.checkout.sessions.create({
-                payment_method_types: ['card'],
-                line_items: [
-                    {
-                        price_data: {
-                            currency: 'eur',
-                            product_data: {
-                                name: itemName,
-                            },
-                            unit_amount: priceCents,
-                        },
-                        quantity: 1,
-                    },
-                ],
-                mode: 'payment',
-                customer_email: customerEmail,
-                success_url: `${domainUrl}/success.html?session_id={CHECKOUT_SESSION_ID}`,
-                cancel_url: `${domainUrl}/cancel.html`,
-            }, Object.keys(stripeOptions).length ? stripeOptions : undefined);
-            sessionId = session.id;
-            checkoutUrl = session.url;
+        let sessionId;
+        let checkoutUrl;
+        let paymentMethodStr = 'Stripe Card';
+
+        if (product && product.revolutPaymentUrl) {
+            sessionId = 'revolut_pending_' + Date.now() + '_' + Math.floor(Math.random() * 1000000);
+            checkoutUrl = product.revolutPaymentUrl;
+            paymentMethodStr = 'Revolut';
         } else {
-            console.warn('Stripe key is placeholder. Falling back to local simulated payment checkout URL.');
+            sessionId = 'local_session_' + Date.now();
+            checkoutUrl = `${domainUrl}/success.html?session_id=${sessionId}`;
+
+            // Create actual Stripe checkout session if key is configured
+            if (stripe) {
+                const session = await stripe.checkout.sessions.create({
+                    payment_method_types: ['card'],
+                    line_items: [
+                        {
+                            price_data: {
+                                currency: 'eur',
+                                product_data: {
+                                    name: itemName,
+                                },
+                                unit_amount: priceCents,
+                            },
+                            quantity: 1,
+                        },
+                    ],
+                    mode: 'payment',
+                    customer_email: customerEmail,
+                    success_url: `${domainUrl}/success.html?session_id={CHECKOUT_SESSION_ID}`,
+                    cancel_url: `${domainUrl}/cancel.html`,
+                }, Object.keys(stripeOptions).length ? stripeOptions : undefined);
+                sessionId = session.id;
+                checkoutUrl = session.url;
+            } else {
+                console.warn('Stripe key is placeholder. Falling back to local simulated payment checkout URL.');
+            }
         }
 
         // Save order in db
@@ -136,7 +153,7 @@ app.post('/api/create-checkout-session', async (req, res) => {
             itemPrice,
             priceCents,
             type, // "digital" or "physical"
-            paymentMethod: 'Stripe Card',
+            paymentMethod: paymentMethodStr,
             paymentStatus: 'Unpaid', // Will be marked paid on verification or webhook
             shippingStatus: 'Pending',
             customerName,
@@ -365,6 +382,65 @@ app.post('/api/update-order-status', async (req, res) => {
     }
 });
 
+// Send manual digital link email
+app.post('/api/send-manual-link', async (req, res) => {
+    if (!(await isAuthorized(req))) {
+        return res.status(401).json({ error: 'Unauthorized access' });
+    }
+
+    const { productId, customerEmail, customerName } = req.body;
+    if (!productId || !customerEmail) {
+        return res.status(400).json({ error: 'Missing required parameters' });
+    }
+
+    try {
+        const products = await db.getProducts();
+        const product = products.find(p => p.id === productId);
+        if (!product) {
+            return res.status(404).json({ error: 'Product not found' });
+        }
+
+        if (!product.digitalDownloadUrl) {
+            return res.status(400).json({ error: 'Selected product is not a digital product' });
+        }
+
+        // Parse price
+        const priceStr = product.price || '€0';
+        const numericStr = priceStr.replace(/[^\d]/g, '');
+        const priceCents = (parseInt(numericStr, 10) || 0) * 100;
+
+        const sessionId = 'manual_' + Date.now() + '_' + Math.floor(Math.random() * 1000000);
+
+        // Add a completed order to db
+        const order = await db.addOrder({
+            itemName: product.name_en,
+            itemPrice: priceStr,
+            priceCents: priceCents,
+            type: 'digital',
+            paymentMethod: 'Revolut (Manual)',
+            paymentStatus: 'Paid',
+            shippingStatus: 'Delivered',
+            customerName: customerName || 'Valued Customer',
+            customerEmail: customerEmail,
+            customerAddress: 'N/A',
+            customerPhone: 'N/A',
+            stripeSessionId: sessionId
+        });
+
+        // Trigger the order notification email (which sends the download link)
+        const reqHost = req.get('host') || req.headers.host || `localhost:${PORT}`;
+        const protocol = req.headers['x-forwarded-proto'] || 'http';
+        const domainUrl = process.env.DOMAIN_URL || `${protocol}://${reqHost}`;
+
+        await emailHelper.sendOrderNotificationEmail(order, domainUrl);
+
+        res.json({ success: true, orderId: order.id });
+    } catch (err) {
+        console.error('Error sending manual digital link:', err);
+        res.status(500).json({ error: 'Failed to send download link' });
+    }
+});
+
 // --- PRODUCTS ENDPOINTS ---
 
 // Public endpoint to get all products
@@ -384,7 +460,7 @@ app.post('/api/products', async (req, res) => {
     }
 
     try {
-        const { name_en, name_bg, price, type, desc_en, desc_bg, image, filterClass, images, materials_en, materials_bg, dimensions, digitalDownloadUrl } = req.body;
+        const { name_en, name_bg, price, type, desc_en, desc_bg, image, filterClass, images, materials_en, materials_bg, dimensions, digitalDownloadUrl, revolutPaymentUrl } = req.body;
         if (!name_en || !name_bg || !price || !type) {
             return res.status(400).json({ error: 'Missing required product information' });
         }
@@ -404,7 +480,8 @@ app.post('/api/products', async (req, res) => {
             materials_en,
             materials_bg,
             dimensions,
-            digitalDownloadUrl
+            digitalDownloadUrl,
+            revolutPaymentUrl
         });
 
         res.json({ success: true, product });

@@ -339,6 +339,7 @@ async function initDb() {
                 symbolism_bg TEXT DEFAULT '',
                 images TEXT DEFAULT '[]',
                 digital_download_url VARCHAR(1000) DEFAULT '',
+                revolut_payment_url VARCHAR(1000) DEFAULT '',
                 position INT DEFAULT 0
             )
         `);
@@ -352,6 +353,7 @@ async function initDb() {
             ALTER TABLE products ADD COLUMN IF NOT EXISTS symbolism_bg TEXT DEFAULT '';
             ALTER TABLE products ADD COLUMN IF NOT EXISTS images TEXT DEFAULT '[]';
             ALTER TABLE products ADD COLUMN IF NOT EXISTS digital_download_url VARCHAR(1000) DEFAULT '';
+            ALTER TABLE products ADD COLUMN IF NOT EXISTS revolut_payment_url VARCHAR(1000) DEFAULT '';
             ALTER TABLE products ADD COLUMN IF NOT EXISTS position INT DEFAULT 0;
         `);
 
@@ -840,7 +842,8 @@ async function getProducts() {
                     symbolism_en: row.symbolism_en,
                     symbolism_bg: row.symbolism_bg,
                     images: parsedImages,
-                    digitalDownloadUrl: row.digital_download_url || ''
+                    digitalDownloadUrl: row.digital_download_url || '',
+                    revolutPaymentUrl: row.revolut_payment_url || ''
                 };
             });
         } catch (err) {
@@ -871,21 +874,22 @@ async function addProduct(prodData) {
         symbolism_en: prodData.symbolism_en || '',
         symbolism_bg: prodData.symbolism_bg || '',
         images: prodData.images || [prodData.image || 'assets/card_artworks.png'],
-        digitalDownloadUrl: prodData.digitalDownloadUrl || ''
+        digitalDownloadUrl: prodData.digitalDownloadUrl || '',
+        revolutPaymentUrl: prodData.revolutPaymentUrl || ''
     };
 
     if (usePostgres) {
         await checkInit();
         try {
             const query = `
-                INSERT INTO products (id, name_en, name_bg, price, price_cents, type, desc_en, desc_bg, image, filter_class, materials_en, materials_bg, dimensions, symbolism_en, symbolism_bg, images, digital_download_url)
-                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)
+                INSERT INTO products (id, name_en, name_bg, price, price_cents, type, desc_en, desc_bg, image, filter_class, materials_en, materials_bg, dimensions, symbolism_en, symbolism_bg, images, digital_download_url, revolut_payment_url)
+                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18)
             `;
             await pool.query(query, [
                 newProduct.id, newProduct.name_en, newProduct.name_bg, newProduct.price, newProduct.priceCents,
                 newProduct.type, newProduct.desc_en, newProduct.desc_bg, newProduct.image, newProduct.filterClass,
                 newProduct.materials_en, newProduct.materials_bg, newProduct.dimensions, newProduct.symbolism_en, newProduct.symbolism_bg,
-                JSON.stringify(newProduct.images), newProduct.digitalDownloadUrl
+                JSON.stringify(newProduct.images), newProduct.digitalDownloadUrl, newProduct.revolutPaymentUrl
             ]);
             return newProduct;
         } catch (err) {
@@ -924,6 +928,7 @@ async function updateProduct(prodId, updates) {
             if (updates.symbolism_bg !== undefined) { keys.push(`symbolism_bg = $${i++}`); values.push(updates.symbolism_bg); }
             if (updates.images !== undefined) { keys.push(`images = $${i++}`); values.push(JSON.stringify(updates.images)); }
             if (updates.digitalDownloadUrl !== undefined) { keys.push(`digital_download_url = $${i++}`); values.push(updates.digitalDownloadUrl); }
+            if (updates.revolutPaymentUrl !== undefined) { keys.push(`revolut_payment_url = $${i++}`); values.push(updates.revolutPaymentUrl); }
 
             if (keys.length === 0) return null;
 
@@ -965,7 +970,8 @@ async function updateProduct(prodId, updates) {
                 symbolism_en: row.symbolism_en,
                 symbolism_bg: row.symbolism_bg,
                 images: parsedImages,
-                digitalDownloadUrl: row.digital_download_url || ''
+                digitalDownloadUrl: row.digital_download_url || '',
+                revolutPaymentUrl: row.revolut_payment_url || ''
             };
         } catch (err) {
             console.error('Error updating product in Postgres:', err);

@@ -716,6 +716,35 @@
         </div>
     </div>
 
+    <!-- --- SEND DIGITAL LINK MODAL POPUP --- -->
+    <div class="modal" id="send-link-modal">
+        <div class="modal-content" style="max-width: 450px;">
+            <button class="close-modal" onclick="closeSendLinkModal()">✕</button>
+            <h3 class="modal-title">Send Digital Download Link</h3>
+            <p style="color: rgba(234, 221, 203, 0.6); font-size: 0.85rem; margin-bottom: 20px;" id="send-link-product-name"></p>
+            
+            <form onsubmit="handleSendLinkSubmit(event)" class="crud-form">
+                <input type="hidden" id="send-link-prod-id">
+                
+                <div class="form-group" style="margin-bottom: 15px;">
+                    <label for="send-link-email" style="display: block; margin-bottom: 5px; font-size: 0.85rem; color: rgba(234, 221, 203, 0.7);">Customer Email</label>
+                    <input type="email" id="send-link-email" required placeholder="customer@example.com" style="width: 100%; padding: 8px 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(234, 221, 203, 0.15); color: #fff; border-radius: 4px; box-sizing: border-box;">
+                </div>
+                
+                <div class="form-group" style="margin-bottom: 15px;">
+                    <label for="send-link-name" style="display: block; margin-bottom: 5px; font-size: 0.85rem; color: rgba(234, 221, 203, 0.7);">Customer Name (Optional)</label>
+                    <input type="text" id="send-link-name" placeholder="Valued Customer" style="width: 100%; padding: 8px 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(234, 221, 203, 0.15); color: #fff; border-radius: 4px; box-sizing: border-box;">
+                </div>
+                
+                <div style="display: flex; gap: 10px; margin-top: 20px;">
+                    <button type="submit" class="btn-action" style="flex: 1; padding: 12px;">Send Email</button>
+                    <button type="button" class="btn-action" style="flex: 1; padding: 12px; background: transparent; border: 1px solid rgba(234, 221, 203, 0.2); color: rgba(234, 221, 203, 0.8);" onclick="closeSendLinkModal()">Cancel</button>
+                </div>
+                <div id="send-link-status" style="margin-top: 15px; font-size: 0.85rem; text-align: center; display: none;"></div>
+            </form>
+        </div>
+    </div>
+
     <!-- --- PRODUCT CRUD MODAL POPUP --- -->
     <div class="modal" id="product-modal">
         <div class="modal-content">
@@ -789,6 +818,10 @@
                     <div class="form-group">
                         <label for="prod-filter">CSS Image Filter (Optional)</label>
                         <input type="text" id="prod-filter" placeholder="E.g., hue-rotate(45deg)">
+                    </div>
+                    <div class="form-group">
+                        <label for="prod-revolut-url">Revolut Payment Link (Optional)</label>
+                        <input type="text" id="prod-revolut-url" placeholder="E.g., https://revolut.me/artist/45">
                     </div>
                 </div>
 
@@ -1167,6 +1200,7 @@
             document.getElementById('prod-dimensions').value = '';
             document.getElementById('prod-download-url').value = '';
             document.getElementById('prod-filter').value = '';
+            document.getElementById('prod-revolut-url').value = '';
             clearImageLinkRows();
 
             if (prodId) {
@@ -1188,6 +1222,7 @@
                     document.getElementById('prod-dimensions').value = product.dimensions || '';
                     document.getElementById('prod-download-url').value = product.digitalDownloadUrl || '';
                     document.getElementById('prod-filter').value = product.filterClass || '';
+                    document.getElementById('prod-revolut-url').value = product.revolutPaymentUrl || '';
                     
                     // Populate images
                     if (product.images && product.images.length > 0) {
@@ -1214,6 +1249,63 @@
             document.getElementById('product-modal').classList.remove('active');
         }
 
+        function openSendLinkModal(prodId, prodName) {
+            document.getElementById('send-link-prod-id').value = prodId;
+            document.getElementById('send-link-product-name').innerText = `Product: ${prodName}`;
+            document.getElementById('send-link-email').value = '';
+            document.getElementById('send-link-name').value = '';
+            const statusDiv = document.getElementById('send-link-status');
+            statusDiv.style.display = 'none';
+            statusDiv.innerText = '';
+            statusDiv.className = '';
+            document.getElementById('send-link-modal').classList.add('active');
+        }
+
+        function closeSendLinkModal() {
+            document.getElementById('send-link-modal').classList.remove('active');
+        }
+
+        async function handleSendLinkSubmit(event) {
+            event.preventDefault();
+            const prodId = document.getElementById('send-link-prod-id').value;
+            const email = document.getElementById('send-link-email').value.trim();
+            const name = document.getElementById('send-link-name').value.trim();
+            const statusDiv = document.getElementById('send-link-status');
+            
+            statusDiv.style.display = 'block';
+            statusDiv.innerText = 'Sending email...';
+            statusDiv.style.color = 'var(--accent-gold)';
+
+            const token = localStorage.getItem('artist_token');
+            try {
+                const response = await fetch('/api/send-manual-link', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ productId: prodId, customerEmail: email, customerName: name })
+                });
+
+                const data = await response.json();
+                if (response.ok) {
+                    statusDiv.innerText = '✓ Download link emailed successfully!';
+                    statusDiv.style.color = '#2ecc71';
+                    setTimeout(() => {
+                        closeSendLinkModal();
+                        loadDashboardData(token);
+                    }, 1500);
+                } else {
+                    statusDiv.innerText = `Error: ${data.error || 'Failed to send'}`;
+                    statusDiv.style.color = 'var(--accent-pink)';
+                }
+            } catch (err) {
+                console.error('Error sending digital link:', err);
+                statusDiv.innerText = 'Network error occurred.';
+                statusDiv.style.color = 'var(--accent-pink)';
+            }
+        }
+
         function handleProductSubmit(event) {
             event.preventDefault();
             
@@ -1229,11 +1321,12 @@
             const dimensions = document.getElementById('prod-dimensions').value;
             const digitalDownloadUrl = document.getElementById('prod-download-url').value;
             const filterClass = document.getElementById('prod-filter').value;
+            const revolutPaymentUrl = document.getElementById('prod-revolut-url').value.trim();
             
             const images = getAdditionalImages();
             const image = images.length > 0 ? images[0] : 'assets/card_artworks.png';
 
-            const payload = { name_en, name_bg, price, type, desc_en, desc_bg, image, filterClass, images, materials_en, materials_bg, dimensions, digitalDownloadUrl };
+            const payload = { name_en, name_bg, price, type, desc_en, desc_bg, image, filterClass, images, materials_en, materials_bg, dimensions, digitalDownloadUrl, revolutPaymentUrl };
 
             const isEdit = !!prodId;
             const apiUrl = isEdit ? `/api/products/${prodId}` : '/api/products';
@@ -1583,6 +1676,7 @@
                     <td>
                         <div style="display: flex; gap: 4px; align-items: center;">
                             ${orderButtonsHTML}
+                            ${prod.digitalDownloadUrl ? `<button class="btn-table-action" style="background: var(--accent-gold); color: #000; border: none; font-weight: bold;" onclick="openSendLinkModal('${prod.id}', '${prod.name_en.replace(/'/g, "\\'")}')">Send Link</button>` : ''}
                             <button class="btn-table-action" onclick="openProductModal('${prod.id}')">Edit</button>
                             <button class="btn-table-action btn-table-delete" onclick="deleteProduct('${prod.id}')">Delete</button>
                         </div>
