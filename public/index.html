@@ -861,19 +861,23 @@
             color: var(--accent-gold);
         }
 
-        /* 2. Books Section Split Layout */
+        /* 2. Books Section Vertical Layout */
         .book-layout {
-            display: grid;
-            grid-template-columns: 1fr 1.2fr;
-            gap: 60px;
-            align-items: center;
-            max-width: 1000px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            max-width: 500px;
             margin: 0 auto;
+            background-color: var(--bg-sidebar);
+            border: 1px solid rgba(234, 221, 203, 0.1);
+            padding: 25px;
         }
 
         .book-img-holder {
+            width: 100%;
             display: flex;
             justify-content: center;
+            margin-bottom: 20px;
         }
 
         .book-cover {
