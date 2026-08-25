@@ -488,9 +488,11 @@
 
         .portfolio-buy-row {
             display: flex;
-            align-items: center;
-            justify-content: space-between;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 12px;
             margin-top: auto;
+            width: 100%;
         }
 
         .portfolio-price {
@@ -504,7 +506,7 @@
             background-color: transparent;
             color: var(--text-champagne);
             border: 1px solid var(--accent-gold);
-            padding: 10px 20px;
+            padding: 12px 20px;
             font-family: var(--font-sans);
             font-size: 0.75rem;
             font-weight: 600;
@@ -512,6 +514,12 @@
             text-transform: uppercase;
             cursor: pointer;
             transition: all 0.3s ease;
+            width: 100%;
+            text-align: center;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            box-sizing: border-box;
         }
 
         .btn-buy:hover {
