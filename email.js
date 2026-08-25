@@ -13,7 +13,7 @@ const transporter = nodemailer.createTransport({
     },
 });
 
-const recipientEmail = process.env.NOTIFICATION_EMAIL || 'viktorshandrov@gmail.com';
+const recipientEmail = process.env.NOTIFICATION_EMAIL || process.env.SMTP_USER || 'info@gratsielaart.com';
 
 /**
  * Send contact form message email to the owner

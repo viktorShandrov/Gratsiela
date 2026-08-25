@@ -565,8 +565,8 @@
             </div>
         </header>
 
-        <!-- Stats Metric Grid -->
-        <section class="stats-grid">
+        <!-- Stats Metric Grid (HIDDEN) -->
+        <section class="stats-grid" style="display: none !important;">
             <div class="stat-card">
                 <span class="stat-label">Total Revenue</span>
                 <span class="stat-value gold" id="stat-revenue">€0.00</span>
@@ -587,13 +587,13 @@
 
         <!-- Tabbed Menu Toggles -->
         <div class="dash-tabs">
-            <button class="tab-btn active" onclick="switchTab('orders')" id="tab-btn-orders">Orders Log</button>
-            <button class="tab-btn" onclick="switchTab('products')" id="tab-btn-products">Product Inventory</button>
+            <button class="tab-btn" onclick="switchTab('orders')" id="tab-btn-orders" style="display: none !important;">Orders Log</button>
+            <button class="tab-btn active" onclick="switchTab('products')" id="tab-btn-products">Product Inventory</button>
             <button class="tab-btn" onclick="switchTab('projects')" id="tab-btn-projects">Design Projects</button>
         </div>
 
-        <!-- TAB SECTION 1: ORDERS LOG -->
-        <section class="dash-section active" id="sec-orders">
+        <!-- TAB SECTION 1: ORDERS LOG (HIDDEN) -->
+        <section class="dash-section" id="sec-orders" style="display: none !important;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
                 <h2 class="section-title" style="margin: 0;">Order Records Log</h2>
                 <label style="display: flex; align-items: center; gap: 8px; color: var(--text-champagne); font-size: 0.85rem; cursor: pointer; user-select: none;">
@@ -627,38 +627,13 @@
         </section>
 
         <!-- TAB SECTION 2: PRODUCT INVENTORY -->
-        <section class="dash-section" id="sec-products">
+        <section class="dash-section active" id="sec-products">
             <div class="section-header-row">
                 <h2 class="section-title">Product Inventory</h2>
                 <button class="btn-action" style="padding: 10px 20px; font-size: 0.75rem;" onclick="openProductModal()">+ Add Product</button>
             </div>
             
-            <h3 style="color: var(--accent-gold); margin-top: 25px; margin-bottom: 10px; font-size: 1.1rem; letter-spacing: 1px;">DIGITAL PRODUCTS</h3>
-            <div class="table-responsive" style="margin-bottom: 40px;">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Image</th>
-                            <th>Product Name (EN / BG)</th>
-                            <th>Price</th>
-                            <th>Category</th>
-                            <th>Description (EN)</th>
-                            <th>Description (BG)</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="digital-products-table-body">
-                        <tr>
-                            <td colspan="7" style="text-align: center; padding: 40px; color: rgba(234, 221, 203, 0.4);">
-                                Loading digital products...
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-
-            <h3 style="color: var(--accent-gold); margin-top: 25px; margin-bottom: 10px; font-size: 1.1rem; letter-spacing: 1px;">PHYSICAL PRODUCTS</h3>
-            <div class="table-responsive">
+            <div class="table-responsive" style="margin-top: 20px;">
                 <table>
                     <thead>
                         <tr>
@@ -674,11 +649,15 @@
                     <tbody id="physical-products-table-body">
                         <tr>
                             <td colspan="7" style="text-align: center; padding: 40px; color: rgba(234, 221, 203, 0.4);">
-                                Loading physical products...
+                                Loading products...
                             </td>
                         </tr>
                     </tbody>
                 </table>
+            </div>
+            <!-- Hidden Digital Table Fallback for backwards compatibility -->
+            <div style="display: none !important;">
+                <table><tbody id="digital-products-table-body"></tbody></table>
             </div>
         </section>
 
@@ -713,8 +692,8 @@
 
     </div>
 
-    <!-- --- ORDER DETAILS MODAL POPUP --- -->
-    <div class="modal" id="order-details-modal">
+    <!-- --- ORDER DETAILS MODAL POPUP (HIDDEN) --- -->
+    <div class="modal" id="order-details-modal" style="display: none !important;">
         <div class="modal-content" style="max-width: 600px;">
             <button class="close-modal" onclick="closeOrderDetailsModal()">✕</button>
             <h3 class="modal-title">Order Details</h3>
@@ -746,8 +725,8 @@
         </div>
     </div>
 
-    <!-- --- SEND DIGITAL LINK MODAL POPUP --- -->
-    <div class="modal" id="send-link-modal">
+    <!-- --- SEND DIGITAL LINK MODAL POPUP (HIDDEN) --- -->
+    <div class="modal" id="send-link-modal" style="display: none !important;">
         <div class="modal-content" style="max-width: 450px;">
             <button class="close-modal" onclick="closeSendLinkModal()">✕</button>
             <h3 class="modal-title">Send Digital Download Link</h3>
@@ -843,7 +822,7 @@
                         <label for="prod-dimensions">Dimensions (E.g. 50/70 cm)</label>
                         <input type="text" id="prod-dimensions" placeholder="E.g. 50/70 cm">
                     </div>
-                    <div class="form-group">
+                    <div class="form-group" style="display: none !important;">
                         <label for="prod-download-url">Digital Download Link (PDF / Cloud url)</label>
                         <input type="text" id="prod-download-url" placeholder="E.g. Google Drive/Dropbox URL">
                     </div>
@@ -854,7 +833,7 @@
                         <label for="prod-filter">CSS Image Filter (Optional)</label>
                         <input type="text" id="prod-filter" placeholder="E.g., hue-rotate(45deg)">
                     </div>
-                    <div class="form-group">
+                    <div class="form-group" style="display: none !important;">
                         <label for="prod-revolut-url">Revolut Payment Link (Optional)</label>
                         <input type="text" id="prod-revolut-url" placeholder="E.g., https://revolut.me/artist/45">
                     </div>
@@ -1746,36 +1725,19 @@
             const digitalTbody = document.getElementById('digital-products-table-body');
             const physicalTbody = document.getElementById('physical-products-table-body');
             
-            digitalTbody.innerHTML = '';
+            if (digitalTbody) digitalTbody.innerHTML = '';
             physicalTbody.innerHTML = '';
 
-            const digitalProducts = products.filter(p => p.type === 'print' || p.type === 'digital_book' || !!p.digitalDownloadUrl);
-            const physicalProducts = products.filter(p => !(p.type === 'print' || p.type === 'digital_book' || !!p.digitalDownloadUrl));
-
-            // Render Digital Table
-            if (digitalProducts.length === 0) {
-                digitalTbody.innerHTML = `
-                    <tr>
-                        <td colspan="7" style="text-align: center; padding: 40px; color: rgba(234, 221, 203, 0.4);">
-                            No digital products registered in the database.
-                        </td>
-                    </tr>
-                `;
-            } else {
-                renderCategoryRows(digitalProducts, digitalTbody, true);
-            }
-
-            // Render Physical Table
-            if (physicalProducts.length === 0) {
+            if (!products || products.length === 0) {
                 physicalTbody.innerHTML = `
                     <tr>
                         <td colspan="7" style="text-align: center; padding: 40px; color: rgba(234, 221, 203, 0.4);">
-                            No physical products registered in the database.
+                            No products registered in the database.
                         </td>
                     </tr>
                 `;
             } else {
-                renderCategoryRows(physicalProducts, physicalTbody, false);
+                renderCategoryRows(products, physicalTbody, false);
             }
         }
 
@@ -1796,11 +1758,7 @@
                     orderButtonsHTML += `<button class="btn-table-action btn-table-reorder disabled" style="opacity: 0.2; cursor: default;" disabled>▼</button>`;
                 }
 
-                const linkWarning = !prod.revolutPaymentUrl ? '<span style="display:inline-block; margin-top:5px; padding:3px 6px; font-size:0.65rem; font-weight:bold; background:#5c1d1d; color:#ff9999; border-radius:3px; border:1px solid #993333;">⚠️ NO REVOLUT LINK</span>' : '';
-                const warningStyle = !prod.revolutPaymentUrl ? 'background: rgba(255, 51, 51, 0.05);' : '';
-
                 const tr = document.createElement('tr');
-                if (warningStyle) tr.setAttribute('style', warningStyle);
                 
                 tr.innerHTML = `
                     <td>
@@ -1810,7 +1768,6 @@
                         <div style="font-weight:600;">${prod.name_en}</div>
                         <div style="color: rgba(234,221,203,0.5); font-size:0.75rem; margin-top:2px;">${prod.name_bg}</div>
                         <div style="font-size:0.65rem; color: var(--accent-gold); font-family:monospace; margin-top:4px;">ID: ${prod.id}</div>
-                        ${linkWarning}
                     </td>
                     <td style="font-weight: 600; color: var(--accent-gold);">${prod.price}</td>
                     <td>
@@ -1822,7 +1779,6 @@
                     <td>
                         <div style="display: flex; gap: 4px; align-items: center;">
                             ${orderButtonsHTML}
-                            ${prod.digitalDownloadUrl ? `<button class="btn-table-action" style="background: var(--accent-gold); color: #000; border: none; font-weight: bold;" onclick="openSendLinkModal('${prod.id}', '${prod.name_en.replace(/'/g, "\\'")}')">Send Link</button>` : ''}
                             <button class="btn-table-action" onclick="openProductModal('${prod.id}')">Edit</button>
                             <button class="btn-table-action btn-table-delete" onclick="deleteProduct('${prod.id}')">Delete</button>
                         </div>
