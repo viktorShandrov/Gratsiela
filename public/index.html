@@ -764,6 +764,8 @@
 
         .portfolio-tab-content.active {
             display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 40px;
         }
 
         #artworks-prints-tab.active {
@@ -1662,7 +1664,7 @@
             .card-desc {
                 font-size: 0.65rem;
             }
-            .portfolio-grid {
+            .portfolio-grid, .portfolio-tab-content.active {
                 grid-template-columns: repeat(2, 1fr);
                 gap: 25px;
             }
@@ -1801,7 +1803,7 @@
                 font-size: 2rem;
             }
 
-            .portfolio-grid {
+            .portfolio-grid, .portfolio-tab-content.active {
                 grid-template-columns: 1fr;
                 gap: 25px;
             }
