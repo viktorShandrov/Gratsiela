@@ -1155,7 +1155,7 @@
                 }
 
                 root.innerHTML += `
-                    <a href="/product.html?id=${item.id}" class="portfolio-item" style="display: flex; flex-direction: column; text-decoration: none; color: inherit;">
+                    <div class="portfolio-item" onclick="window.location.href='/product.html?id=${item.id}'" style="display: flex; flex-direction: column; text-decoration: none; color: inherit; cursor: pointer;">
                         <div class="portfolio-img" style="background-image: url('${item.image}'); ${filterStyle}"></div>
                         <div class="portfolio-info">
                             <div>
@@ -1163,12 +1163,12 @@
                                 <div class="portfolio-item-meta">${metaType}</div>
                                 <p class="portfolio-item-desc">${displayDesc}</p>
                             </div>
-                            <div class="portfolio-buy-row" onclick="event.stopPropagation();">
+                            <div class="portfolio-buy-row">
                                 <span class="portfolio-price">${item.price}</span>
-                                <a href="https://www.instagram.com/gratsielaivanova_artist_artue/" target="_blank" rel="noopener noreferrer" class="btn-buy" style="text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 5px;"><span>Instagram</span> ↗</a>
+                                <a href="https://www.instagram.com/gratsielaivanova_artist_artue/" target="_blank" rel="noopener noreferrer" class="btn-buy" onclick="event.stopPropagation();"><span>Instagram</span> ↗</a>
                             </div>
                         </div>
-                    </a>
+                    </div>
                 `;
             });
         }
